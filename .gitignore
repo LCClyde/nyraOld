@@ -1,0 +1,50 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+*~
+*CMakeCache.txt
+*cmake_install.cmake
+CMakeFiles/
+*Makefile
+install/
+
+
+externals/sfml/
+externals/box2d/
+externals/rapid_json/
+externals/tgui/
+
+nyra_wrap.cxx
+
+data/
+
+
+
+err.txt
+
