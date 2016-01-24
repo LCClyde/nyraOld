@@ -37,8 +37,6 @@ public:
            const std::string& className,
            void* data);
 
-    ~Script();
-
     void addMethod(const std::string& methodKey,
                    const std::string& methodName);
 
@@ -48,7 +46,7 @@ private:
     AutoPy mModule;
     AutoPy mClass;
     AutoPy mInstance;
-    std::unordered_map<std::string, PyObject*> mMethods;
+    std::unordered_map<std::string, AutoPy> mMethods;
 };
 }
 

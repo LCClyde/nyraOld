@@ -28,10 +28,7 @@
 namespace nyra
 {
 //===========================================================================//
-GUI::GUI(const std::string& pathname)
+GUI::GUI()
 {
-    // Read the JSON file
-    rapidjson::Document document;
-    document.Parse(readFile(pathname).c_str());
 }
 }

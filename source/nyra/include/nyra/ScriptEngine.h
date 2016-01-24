@@ -24,21 +24,32 @@
 #ifndef NYRA_SCRIPT_ENGINE_H_
 #define NYRA_SCRIPT_ENGINE_H_
 
-#include <string>
+#include <nyra/Script.h>
 #include <vector>
+#include <string>
+#include <memory>
 
 namespace nyra
 {
-void _register_button(const std::string& name,
-                      const std::vector<size_t>& inputs);
+class ScriptEngine
+{
+public:
+    ScriptEngine(void* engine);
 
-bool button_pressed(const std::string& name);
+    ~ScriptEngine();
 
-bool button_released(const std::string& name);
+    void reset();
 
-bool button_down(const std::string& name);
+    void update();
 
-void _set_data(size_t address);
+    Script* addScript(const std::string& moduleName,
+                      const std::string& className,
+                      void* data);
+
+private:
+    std::unique_ptr<Script> mEngineScript;
+    std::vector<std::unique_ptr<Script> > mScripts;
+};
 }
 
 #endif

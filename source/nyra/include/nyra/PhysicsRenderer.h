@@ -21,53 +21,50 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_GRAPHICS_H_
-#define NYRA_GRAPHICS_H_
+#ifndef NYRA_PHYSICS_RENDERER_H_
+#define NYRA_PHYSICS_RENDERER_H_
 
-#include <string>
-#include <memory>
-#include <nyra/Vector2.h>
-#include <nyra/Sprite.h>
+#include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
 
 namespace nyra
 {
-class Graphics
+class PhysicsRenderer : public b2Draw
 {
 public:
-    Graphics(const std::string& title,
-             const Vector2& position,
-             const Vector2& size,
-             bool fullscreen,
-             bool vsync);
+    PhysicsRenderer(sf::RenderWindow& window);
 
-    bool clear();
+    void DrawPolygon(const b2Vec2* vertices,
+                     int32 vertexCount,
+                     const b2Color& color);
 
-    void render();
+    void DrawSolidPolygon(const b2Vec2* vertices,
+                          int32 vertexCount,
+                          const b2Color& color);
 
-    void present();
+    void DrawCircle(const b2Vec2& center,
+                    float32 radius,
+                    const b2Color& color);
 
-    void reset()
+    void DrawSolidCircle(const b2Vec2& center,
+                         float32 radius,
+                         const b2Vec2& axis,
+                         const b2Color& color);
+
+    void DrawSegment(const b2Vec2& point1,
+                     const b2Vec2& point2,
+                     const b2Color& color);
+
+    void DrawTransform(const b2Transform& transform);
+
+    void setRender(bool value)
     {
-        mSprites.clear();
-    }
-
-    Sprite& addSprite(const std::string& pathname);
-
-    sf::RenderWindow& getWindow()
-    {
-        return mWindow;
+        SetFlags(b2Draw::e_shapeBit);
     }
 
 private:
-    sf::Clock mClock;
-    size_t mFrames;
-
-    const std::string mWindowTitle;
-    sf::RenderWindow mWindow;
-    std::vector<std::unique_ptr<Sprite> > mSprites;
+    sf::RenderWindow& mWindow;
 };
 }
 
 #endif
-

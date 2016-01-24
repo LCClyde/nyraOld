@@ -21,78 +21,78 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include <nyra/Graphics.h>
-#include <nyra/Logger.h>
-#include <iostream>
+#include <nyra/SwigEngine.h>
+#include <nyra/Engine.h>
+
+namespace
+{
+static nyra::Engine* engine = nullptr;
+}
 
 namespace nyra
 {
 //===========================================================================//
-Graphics::Graphics(const std::string& title,
-                   const Vector2& position,
-                   const Vector2& size,
-                   bool fullscreen,
-                   bool vsync) :
-    mFrames(0),
-    mWindowTitle(title),
-    mWindow(sf::VideoMode(size.x, size.y), mWindowTitle + " 0 FPS",
-            fullscreen ? (sf::Style::Fullscreen) :
-                         (sf::Style::Close | sf::Style::Titlebar))
+void _set_data(size_t address)
 {
-    mWindow.setPosition(position.toThirdParty<sf::Vector2i>());
-    mWindow.setVerticalSyncEnabled(vsync);
-    Logger::info("Graphics initialized");
-}
-
-//===========================================================================//
-bool Graphics::clear()
-{
-    sf::Event event;
-    while (mWindow.pollEvent(event))
+    if (address == 0)
     {
-        if (event.type == sf::Event::Closed)
-        {
-            mWindow.close();
-            return false;
-        }
+        throw std::runtime_error("Attempting to create a void engine.");
     }
-
-    // clear the window with black color
-    mWindow.clear(sf::Color::Black);
-    return true;
+    engine = reinterpret_cast<Engine*>(address);
 }
 
 //===========================================================================//
-void Graphics::render()
+void _register_button(const std::string& name,
+                      const std::vector<size_t>& inputs)
 {
-    // Render all sprites
-    for (auto& sprite : mSprites)
-    {
-        mWindow.draw(sprite->get());
-    }
-
+    engine->getInput().registerButton(name, inputs);
 }
 
 //===========================================================================//
-void Graphics::present()
+bool button_pressed(const std::string& name)
 {
-    // end the current frame
-    mWindow.display();
-
-    // Check if one second has passed
-    ++mFrames;
-    if (mClock.getElapsedTime().asSeconds() >= 1.0)
-    {
-        mWindow.setTitle(mWindowTitle + " " + std::to_string(mFrames) + " FPS");
-        mClock.restart();
-        mFrames = 0;
-    }
+    return engine->getInput().buttonPressed(name);
 }
 
 //===========================================================================//
-Sprite& Graphics::addSprite(const std::string& pathname)
+bool button_released(const std::string& name)
 {
-    mSprites.push_back(std::unique_ptr<Sprite>(new Sprite(pathname)));
-    return *mSprites.back();
+    return engine->getInput().buttonReleased(name);
+}
+
+//===========================================================================//
+bool button_down(const std::string& name)
+{
+    return engine->getInput().buttonDown(name);
+}
+
+//===========================================================================//
+void log_debug(const std::string& message)
+{
+    engine->getLogger().logDebug(message);
+}
+
+//===========================================================================//
+void log_info(const std::string& message)
+{
+    engine->getLogger().logInfo(message);
+}
+
+//===========================================================================//
+void log_warning(const std::string& message)
+{
+    engine->getLogger().logWarn(message);
+}
+
+//===========================================================================//
+void log_error(const std::string& message)
+{
+    engine->getLogger().logError(message);
+}
+
+//===========================================================================//
+void log(const std::string& message)
+{
+    engine->getLogger().logInfo(message);
 }
 }

@@ -31,11 +31,17 @@ namespace nyra
 class AutoPy
 {
 public:
-    AutoPy();
-
-    AutoPy(PyObject* object);
+    AutoPy(PyObject* object = nullptr);
 
     ~AutoPy();
+
+    AutoPy(const AutoPy& other);
+
+    AutoPy(AutoPy&& other);
+
+    AutoPy& operator=(const AutoPy& other);
+
+    AutoPy& operator=(AutoPy&& other);
 
     void reset(PyObject* object);
 

@@ -21,28 +21,39 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_SCRIPT_ACTOR_H_
-#define NYRA_SCRIPT_ACTOR_H_
+#ifndef NYRA_JSON_READER_H_
+#define NYRA_JSON_READER_H_
 
-#include <stddef.h>
-#include <nyra/Actor.h>
-#include <nyra/Vector2.h>
+#include <string>
+#include <nyra/JSONNode.h>
+#include <rapidjson/document.h>
 
 namespace nyra
 {
-class ScriptActor
+class JSONReader
 {
 public:
-    ScriptActor();
+    JSONReader(const std::string& pathname);
 
-    void _set_position(const Vector2& vector) const;
+    JSONNode getNode(const std::string& name) const
+    {
+        return mNode.getNode(name);
+    }
 
-    Vector2 _get_position() const;
+    template <typename T>
+    std::vector<T> getArray(const std::string& name) const
+    {
+        return mNode.getArray<T>(name);
+    }
 
-    void _set_data(size_t address);
+    bool hasValue(const std::string& name) const
+    {
+        return mNode.hasValue(name);
+    }
 
 private:
-    Actor* mData;
+    rapidjson::Document mDocument;
+    JSONNode mNode;
 };
 }
 

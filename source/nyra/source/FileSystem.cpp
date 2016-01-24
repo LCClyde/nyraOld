@@ -28,6 +28,7 @@
 
 namespace nyra
 {
+//===========================================================================//
 std::string readFile(const std::string& pathname)
 {
     // Make sure the file exists
@@ -52,6 +53,7 @@ std::string readFile(const std::string& pathname)
     return buffer;
 }
 
+//===========================================================================//
 bool fileExists(const std::string& pathname)
 {
     if (FILE* file = fopen(pathname.c_str(), "r"))

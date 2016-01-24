@@ -21,72 +21,82 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include <nyra/AutoPy.h>
+#include <nyra/JSONNode.h>
+#include <stdexcept>
+#include <vector>
 
 namespace nyra
 {
 //===========================================================================//
-AutoPy::AutoPy(PyObject* object) :
-    mObject(object)
+JSONNode::JSONNode(const rapidjson::Value* value) :
+    mValue(value)
 {
 }
 
 //===========================================================================//
-AutoPy::AutoPy(const AutoPy& other) :
-    mObject(other.mObject)
+JSONNode JSONNode::getNode(const std::string& name) const
 {
-    if (mObject)
+    hasValue(name, true);
+    if (!(*mValue)[name.c_str()].IsObject())
     {
-        Py_INCREF(mObject);
+        throw std::runtime_error(
+                "Node: " + name + " does not contain an object.");
     }
+    return JSONNode(&(*mValue)[name.c_str()]);
 }
 
 //===========================================================================//
-AutoPy::AutoPy(AutoPy&& other) :
-    mObject(other.mObject)
+std::string JSONNode::getString(const std::string& name) const
 {
-    other.mObject = nullptr;
-}
-
-//===========================================================================//
-AutoPy& AutoPy::operator=(const AutoPy& other)
-{
-    mObject = other.mObject;
-    if (mObject)
+    hasValue(name, true);
+    if (!(*mValue)[name.c_str()].IsString())
     {
-        Py_INCREF(mObject);
+        throw std::runtime_error(
+                "Node: " + name + " does not contain a string.");
     }
-    return *this;
+    return (*mValue)[name.c_str()].GetString();
 }
 
 //===========================================================================//
-
-AutoPy& AutoPy::operator=(AutoPy&& other)
+double JSONNode::getDouble(const std::string& name) const
 {
-    mObject = other.mObject;
-    other.mObject = nullptr;
-    return *this;
-}
-
-//===========================================================================//
-AutoPy::~AutoPy()
-{
-    release();
-}
-
-//===========================================================================//
-void AutoPy::reset(PyObject* object)
-{
-    release();
-    mObject = object;
-}
-
-//===========================================================================//
-void AutoPy::release()
-{
-    if (mObject)
+    hasValue(name, true);
+    if (!(*mValue)[name.c_str()].IsDouble())
     {
-        Py_XDECREF(mObject);
+        throw std::runtime_error(
+                "Node: " + name + " does not contain a double.");
     }
+    return (*mValue)[name.c_str()].GetDouble();
+}
+
+//===========================================================================//
+Vector2 JSONNode::getVector2(const std::string& nodeName,
+                             const std::string& x,
+                             const std::string& y) const
+{
+    JSONNode node = getNode(nodeName);
+    return Vector2(node.getDouble(x), node.getDouble(y));
+}
+
+//===========================================================================//
+bool JSONNode::hasValue(const std::string& name,
+                        bool require) const
+{
+    if (!mValue)
+    {
+        throw std::runtime_error(
+                "Attempting to obtain an invalid JSON node.");
+    }
+
+    if (!mValue->HasMember(name.c_str()))
+    {
+        if (require)
+        {
+            throw std::runtime_error(
+                "Required node: " + name + " does not exist.");
+        }
+        return false;
+    }
+    return true;
 }
 }

@@ -21,53 +21,35 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_GRAPHICS_H_
-#define NYRA_GRAPHICS_H_
-
-#include <string>
+#include <iostream>
+#include <stdexcept>
 #include <memory>
-#include <nyra/Vector2.h>
-#include <nyra/Sprite.h>
-#include <SFML/Graphics.hpp>
+#include <nyra/Logger.h>
+#include <nyra/Engine.h>
 
-namespace nyra
+int main(int argc, char** argv)
 {
-class Graphics
-{
-public:
-    Graphics(const std::string& title,
-             const Vector2& position,
-             const Vector2& size,
-             bool fullscreen,
-             bool vsync);
-
-    bool clear();
-
-    void render();
-
-    void present();
-
-    void reset()
+    try
     {
-        mSprites.clear();
+        nyra::Logger::registerLogger(nyra::Logger::DEBUG, "./log.txt");
+        nyra::Engine engine;
+        engine.loadMap("test");
+
+        while (engine.update())
+        {
+        }
+
+        nyra::Logger::info("Engine properly shutdown");
+    }
+    catch (const std::exception& ex)
+    {
+        nyra::Logger::error(
+                std::string("Caught standard exception: ") + ex.what());
+    }
+    catch (...)
+    {
+        nyra::Logger::error("Caught unnamed exception");
     }
 
-    Sprite& addSprite(const std::string& pathname);
-
-    sf::RenderWindow& getWindow()
-    {
-        return mWindow;
-    }
-
-private:
-    sf::Clock mClock;
-    size_t mFrames;
-
-    const std::string mWindowTitle;
-    sf::RenderWindow mWindow;
-    std::vector<std::unique_ptr<Sprite> > mSprites;
-};
+    return 1;
 }
-
-#endif
-

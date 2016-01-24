@@ -21,53 +21,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_GRAPHICS_H_
-#define NYRA_GRAPHICS_H_
-
-#include <string>
-#include <memory>
-#include <nyra/Vector2.h>
-#include <nyra/Sprite.h>
-#include <SFML/Graphics.hpp>
+#include <nyra/JSONReader.h>
+#include <nyra/FileSystem.h>
+#include <stdexcept>
 
 namespace nyra
 {
-class Graphics
+//===========================================================================//
+JSONReader::JSONReader(const std::string& pathname) :
+    mNode(&mDocument)
 {
-public:
-    Graphics(const std::string& title,
-             const Vector2& position,
-             const Vector2& size,
-             bool fullscreen,
-             bool vsync);
-
-    bool clear();
-
-    void render();
-
-    void present();
-
-    void reset()
+    if (mDocument.Parse(readFile(pathname).c_str()).HasParseError())
     {
-        mSprites.clear();
+        throw std::runtime_error("JSON error in: " + pathname);
     }
-
-    Sprite& addSprite(const std::string& pathname);
-
-    sf::RenderWindow& getWindow()
-    {
-        return mWindow;
-    }
-
-private:
-    sf::Clock mClock;
-    size_t mFrames;
-
-    const std::string mWindowTitle;
-    sf::RenderWindow mWindow;
-    std::vector<std::unique_ptr<Sprite> > mSprites;
-};
 }
-
-#endif
-
+}

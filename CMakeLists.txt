@@ -23,7 +23,7 @@
 #
 cmake_minimum_required(VERSION 2.8.12.2)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic -fPIC")
 
 #TODO: Only set this if the caller did not set it
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
@@ -88,7 +88,7 @@ file(MAKE_DIRECTORY ${PYTHON_DIRECTORY})
 add_custom_command(
     OUTPUT swig
     PRE_BUILD
-    COMMAND swig -I${CMAKE_BINARY_DIR}/source/nyra/include -outdir ${PYTHON_DIRECTORY} -o ${SOURCE_DIRECTORY}/nyra_wrap.cpp -python -c++ nyra.i)
+    COMMAND swig -I${CMAKE_BINARY_DIR}/source/nyra/include -outdir ${PYTHON_DIRECTORY} -o ${SOURCE_DIRECTORY}/nyra/nyra_wrap.cpp -python -c++ nyra.i)
 
 add_custom_target(
   BuildSwig ALL
@@ -99,7 +99,7 @@ add_custom_target(
   DEPENDS copyPython BuildSwig)
 
 # Build the swig lib
-add_library(_nyra SHARED ${SOURCE_DIRECTORY}/nyra_wrap.cpp)
+add_library(_nyra SHARED ${SOURCE_DIRECTORY}/nyra/nyra_wrap.cpp)
 add_dependencies(_nyra nyra)
 target_link_libraries(_nyra nyra)
 

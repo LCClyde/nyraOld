@@ -26,6 +26,7 @@
 
 #include <Box2D/Box2D.h>
 #include <nyra/Vector2.h>
+#include <nyra/Constants.h>
 #include <vector>
 
 namespace nyra
@@ -40,7 +41,6 @@ public:
     };
 
     Body(Type type,
-         double pixelsPerMeters,
          b2World& world);
 
     void addBox(const Vector2& size,
@@ -49,24 +49,27 @@ public:
 
     Vector2 getPosition() const
     {
-        return Vector2(mBody->GetPosition()) * mPixelsPerMeters;
+        return Vector2(mBody->GetPosition()) * Constants::PIXELS_PER_METER;
     }
 
     void setPosition(const Vector2& position)
     {
         mBody->SetTransform(
-                (position * mMetersPerPixels).toThirdParty<b2Vec2>(),
+                (position * Constants::METERS_PER_PIXEL).toThirdParty<b2Vec2>(),
                 mBody->GetAngle());
     }
 
+    const b2Body& get() const
+    {
+        return *mBody;
+    }
+
+    b2Body& get()
+    {
+        return *mBody;
+    }
+
 private:
-    // TODO: We embed pixels to meters in here. Is there a better way to do
-    //       this without copying the data everywhere? I want to avoid
-    //       static in case I ever want multiple worlds. It might be safe
-    //       to say that a game can only ever set this once for the entire
-    //       game, but I am not sure yet.
-    const double mPixelsPerMeters;
-    const double mMetersPerPixels;
     b2Body* mBody;
 };
 }

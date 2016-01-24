@@ -22,7 +22,7 @@
  * IN THE SOFTWARE.
  */
 #include <nyra/Physics.h>
-#include <iostream>
+#include <nyra/Logger.h>
 
 namespace
 {
@@ -36,12 +36,13 @@ namespace nyra
 //===========================================================================//
 Physics::Physics(const Vector2& gravity,
                  double ticksPerSecond,
-                 double pixelsPerMeters) :
+                 PhysicsRenderer& renderer) :
     mElapsedTime(0.0),
-    mPixelsPerMeters(pixelsPerMeters),
     mFrameTime(1.0 / ticksPerSecond),
     mWorld((gravity).toThirdParty<b2Vec2>())
 {
+    Logger::info("Physics initialized");
+    mWorld.SetDebugDraw(&renderer);
 }
 
 //===========================================================================//
@@ -58,9 +59,20 @@ void Physics::update(double deltaTime)
 }
 
 //===========================================================================//
-Body Physics::addBody(Body::Type type)
+void Physics::reset()
 {
-    Body body(type, mPixelsPerMeters, mWorld);
-    return body;
+    for (auto& body : mBodies)
+    {
+        mWorld.DestroyBody(&body->get());
+    }
+    mBodies.clear();
+}
+
+//===========================================================================//
+Body& Physics::addBody(Body::Type type)
+{
+    Body* body = new Body(type, mWorld);
+    mBodies.push_back(std::unique_ptr<Body>(body));
+    return *body;
 }
 }

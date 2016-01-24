@@ -21,53 +21,40 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_GRAPHICS_H_
-#define NYRA_GRAPHICS_H_
+#ifndef NYRA_JSON_MAP_H_
+#define NYRA_JSON_MAP_H_
 
 #include <string>
-#include <memory>
+#include <vector>
+#include <nyra/JSONNode.h>
+#include <nyra/JSONReader.h>
 #include <nyra/Vector2.h>
-#include <nyra/Sprite.h>
-#include <SFML/Graphics.hpp>
 
 namespace nyra
 {
-class Graphics
+struct JSONMap
 {
 public:
-    Graphics(const std::string& title,
-             const Vector2& position,
-             const Vector2& size,
-             bool fullscreen,
-             bool vsync);
+    JSONMap(const std::string& pathname);
 
-    bool clear();
-
-    void render();
-
-    void present();
-
-    void reset()
+    //=======================================================================//
+    struct JSONActorInstance
     {
-        mSprites.clear();
-    }
+    public:
+        JSONActorInstance(const JSONNode& json);
 
-    Sprite& addSprite(const std::string& pathname);
-
-    sf::RenderWindow& getWindow()
-    {
-        return mWindow;
-    }
+        const std::string filename;
+        const Vector2 position;
+        const double rotation;
+    };
 
 private:
-    sf::Clock mClock;
-    size_t mFrames;
+    const JSONReader mReader;
 
-    const std::string mWindowTitle;
-    sf::RenderWindow mWindow;
-    std::vector<std::unique_ptr<Sprite> > mSprites;
+public:
+    const std::vector<JSONActorInstance> actors;
+
 };
 }
 
 #endif
-

@@ -23,6 +23,8 @@
  */
 #include <nyra/Engine.h>
 #include <nyra/JSONActor.h>
+#include <nyra/Logger.h>
+#include <nyra/JSONMap.h>
 
 namespace nyra
 {
@@ -34,19 +36,21 @@ Engine::Engine(const std::string& dataDir,
                bool fullscreen,
                bool vsync,
                const Vector2& gravity,
-               double physicsTicksPerSecond,
-               double pixelsPerMeters) :
+               double physicsTicksPerSecond) :
     mDataDir(dataDir),
-    mEngineScript("nyra", "", this),
     mGraphics(title,
               position,
               size,
               fullscreen,
               vsync),
+    mPhysicsRenderer(mGraphics.getWindow()),
     mPhysics(gravity,
              physicsTicksPerSecond,
-             pixelsPerMeters)
+             mPhysicsRenderer),
+    mScript(this)
 {
+    Logger::info("Engine initialized");
+    mPhysicsRenderer.setRender(true);
 }
 
 //===========================================================================//
@@ -59,11 +63,7 @@ bool Engine::update()
         return false;
     }
 
-    // Call script updates
-    for (auto& script : mScripts)
-    {
-        script->call("update");
-    }
+    mScript.update();
 
     mPhysics.update(deltaTime);
 
@@ -74,6 +74,7 @@ bool Engine::update()
     }
 
     mGraphics.render();
+    mPhysics.render();
 
     // update the input
     mInput.update();
@@ -84,42 +85,80 @@ bool Engine::update()
 }
 
 //===========================================================================//
+void Engine::reset()
+{
+    mScript.reset();
+    mPhysics.reset();
+    mGraphics.reset();
+    mDynamicActors.clear();
+    mActors.clear();
+}
+
+//===========================================================================//
+void Engine::loadMap(const std::string& filename)
+{
+    reset();
+    const std::string pathname(mDataDir + "/maps/" + filename + ".json");
+    Logger::info("Loading map: " + pathname);
+    const JSONMap map(pathname);
+    for (const auto& actor : map.actors)
+    {
+        Actor& created = addActor(actor.filename);
+        created.setPosition(actor.position);
+        //created.setRotation(actor.rotation);
+    }
+}
+
+//===========================================================================//
 void Engine::addGUI(const std::string& filename)
 {
-    GUI gui(mDataDir + "/gui/" + filename + ".json");
+    const std::string pathname(mDataDir + "/gui/" + filename + ".json");
+    GUI gui();
 }
 
 //===========================================================================//
 sf::Sprite& Engine::addSprite(const std::string& filename)
 {
-    return mGraphics.addSprite(
-            mDataDir + "/textures/" + filename + ".png").get();
+    const std::string pathname(mDataDir + "/textures/" + filename + ".png");
+    return mGraphics.addSprite(pathname).get();
 }
 
 //===========================================================================//
 Actor& Engine::addActor(const std::string& filename)
 {
     // Parse JSON
-    JSONActor json(mDataDir + "/actors/" + filename + ".json");
+    const std::string pathname(mDataDir + "/actors/" + filename + ".json");
+    JSONActor json(pathname);
 
-    mActors.push_back(Actor());
-    Actor& actor = mActors.back();
+    mActors.push_back(std::unique_ptr<Actor>(new Actor()));
+    Actor& actor = *mActors.back();
 
     // Check for a sprite
     if (json.sprite.get())
     {
         sf::Sprite& sprite = addSprite(json.sprite->filename);
+
+        if (json.sprite->origin.get())
+        {
+            sprite.setOrigin(
+                    json.sprite->origin->toThirdParty<sf::Vector2f>());
+        }
+        else
+        {
+            sprite.setOrigin(sf::Vector2f(
+                    (sprite.getTexture()->getSize().x / 2.0f),
+                    (sprite.getTexture()->getSize().y / 2.0f)));
+        }
         actor.setSprite(sprite);
     }
 
     // Check for a script
     if (json.script.get())
     {
-        Script* script = new Script(
+        Script* script = mScript.addScript(
                 json.script->module,
                 json.script->className,
                 &actor);
-        mScripts.push_back(std::unique_ptr<Script>(script));
 
         if (json.script->update.get())
         {
@@ -146,8 +185,7 @@ Actor& Engine::addActor(const std::string& filename)
                     "Invalid physics type: " + json.physics->type);
         }
 
-        mBodies.push_back(mPhysics.addBody(type));
-        Body& body = mBodies.back();
+        Body& body = mPhysics.addBody(type);
 
         for (const auto& shape : json.physics->shapes)
         {
@@ -171,7 +209,7 @@ Actor& Engine::addActor(const std::string& filename)
             mDynamicActors.push_back(&actor);
         }
     }
-    return mActors.back();
+    return *mActors.back();
 }
 
 }

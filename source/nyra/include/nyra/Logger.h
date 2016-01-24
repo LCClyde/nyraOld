@@ -21,53 +21,68 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_GRAPHICS_H_
-#define NYRA_GRAPHICS_H_
+#ifndef NYRA_LOGGER_H_
+#define NYRA_LOGGER_H_
 
 #include <string>
-#include <memory>
-#include <nyra/Vector2.h>
-#include <nyra/Sprite.h>
-#include <SFML/Graphics.hpp>
+#include <fstream>
 
 namespace nyra
 {
-class Graphics
+class Logger
 {
 public:
-    Graphics(const std::string& title,
-             const Vector2& position,
-             const Vector2& size,
-             bool fullscreen,
-             bool vsync);
-
-    bool clear();
-
-    void render();
-
-    void present();
-
-    void reset()
+    enum Level
     {
-        mSprites.clear();
+        DEBUG,
+        INFO,
+        WARN,
+        ERROR,
+        NULL_LOGGER
+    };
+
+    Logger();
+
+    static void registerLogger(Level level, const std::string& pathname);
+
+    static Logger& getRegisteredLogger();
+
+    static void debug(const std::string& message);
+
+    static void info(const std::string& message);
+
+    static void warn(const std::string& message);
+
+    static void error(const std::string& message);
+
+    void logDebug(const std::string& message)
+    {
+        log(DEBUG, "DEBUG", message);
     }
 
-    Sprite& addSprite(const std::string& pathname);
-
-    sf::RenderWindow& getWindow()
+    void logInfo(const std::string& message)
     {
-        return mWindow;
+        log(INFO, "INFO", message);
+    }
+
+    void logWarn(const std::string& message)
+    {
+        log(WARN, "WARNING", message);
+    }
+
+    void logError(const std::string& message)
+    {
+        log(ERROR, "ERROR", message);
     }
 
 private:
-    sf::Clock mClock;
-    size_t mFrames;
+    void log(Level level,
+             const std::string& prefix,
+             const std::string& message);
 
-    const std::string mWindowTitle;
-    sf::RenderWindow mWindow;
-    std::vector<std::unique_ptr<Sprite> > mSprites;
+    Level mLevel;
+    std::ofstream mOutStream;
 };
 }
 
 #endif
-

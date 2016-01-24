@@ -2,8 +2,8 @@
 
 %{
     #include "nyra/Vector2.h"
-    #include "nyra/ScriptActor.h"
-    #include "nyra/ScriptEngine.h"
+    #include "nyra/SwigActor.h"
+    #include "nyra/SwigEngine.h"
     #include "nyra/InputConstants.h"
 %}
 
@@ -23,13 +23,13 @@
 
 %ignore update;
 %ignore initialize;
-%rename(Actor) nyra::ScriptActor;
+%rename(Actor) nyra::SwigActor;
 
 %include "std_string.i"
 %include "std_vector.i"
 %include "nyra/Vector2.h"
-%include "nyra/ScriptActor.h"
-%include "nyra/ScriptEngine.h"
+%include "nyra/SwigActor.h"
+%include "nyra/SwigEngine.h"
 %include "nyra/InputConstants.h"
 
 %template(Vector2) nyra::Vector2Impl<double>;

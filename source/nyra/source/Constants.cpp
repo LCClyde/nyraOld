@@ -22,6 +22,7 @@
  * IN THE SOFTWARE.
  */
 #include <nyra/Constants.h>
+#include <cstring>
 
 #ifdef __linux__
 #include <limits.h>
@@ -38,8 +39,9 @@ namespace
 std::string getApplicationPath()
 {
     char buff[PATH_MAX];
+    memset(buff, 0, PATH_MAX);
     ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
-    std::string ret(buff);
+    const std::string ret(buff);
     const size_t find = ret.find_last_of("/\\");
     return find != std::string::npos ? ret.substr(0, find + 1) : ret;
 }
@@ -50,4 +52,6 @@ namespace nyra
 {
 const std::string Constants::APP_PATH(getApplicationPath());
 const double Constants::DEGREES_TO_RADIANS = M_PI / 180.0;
+const double Constants::PIXELS_PER_METER = 16.0;
+const double Constants::METERS_PER_PIXEL = 1.0 / Constants::PIXELS_PER_METER;
 }

@@ -27,10 +27,7 @@ namespace nyra
 {
 //===========================================================================//
 Body::Body(Type type,
-           double pixelsPerMeters,
-           b2World& world) :
-    mPixelsPerMeters(pixelsPerMeters),
-    mMetersPerPixels(1.0 / pixelsPerMeters)
+           b2World& world)
 {
     b2BodyDef bodyDef;
     if (type == DYNAMIC)
@@ -47,8 +44,8 @@ void Body::addBox(const Vector2& size,
 {
     b2PolygonShape shape;
     b2FixtureDef fixture;
-    shape.SetAsBox((size.x * mPixelsPerMeters) / 2.0,
-                   (size.y * mPixelsPerMeters) / 2.0);
+    shape.SetAsBox((size.x * Constants::METERS_PER_PIXEL) / 2.0,
+                   (size.y * Constants::METERS_PER_PIXEL) / 2.0);
     fixture.density = density;
     fixture.friction = friction;
     fixture.shape = &shape;

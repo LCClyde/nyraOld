@@ -22,6 +22,7 @@
  * IN THE SOFTWARE.
  */
 #include <nyra/Script.h>
+#include <nyra/Logger.h>
 #include <iostream>
 
 namespace nyra
@@ -31,11 +32,6 @@ Script::Script(const std::string& moduleName,
                const std::string& className,
                void* data)
 {
-    if (!Py_IsInitialized())
-    {
-        Py_Initialize();
-    }
-
     const AutoPy pyModuleName(PyString_FromString(moduleName.c_str()));
     if (!pyModuleName.get())
     {
@@ -72,19 +68,7 @@ Script::Script(const std::string& moduleName,
     const AutoPy setDataList(PyTuple_New(1));
     PyTuple_SetItem(setDataList.get(), 0,
                     PyInt_FromSize_t(reinterpret_cast<size_t>(data)));
-    PyObject_CallObject(mMethods["set_data"], setDataList.get());
-}
-
-//===========================================================================//
-Script::~Script()
-{
-    for (auto method : mMethods)
-    {
-        if (method.second)
-        {
-            Py_DECREF(method.second);
-        }
-    }
+    PyObject_CallObject(mMethods["set_data"].get(), setDataList.get());
 }
 
 //===========================================================================//
@@ -102,7 +86,7 @@ void Script::addMethod(const std::string& methodKey,
     mMethods[methodKey] = PyObject_GetAttrString(
             mInstance.get() ? mInstance.get() : mModule.get(),
             methodName.c_str());
-    if (!mMethods[methodKey])
+    if (!mMethods[methodKey].get())
     {
         throw std::runtime_error("Unable to find method: " + methodName);
     }
@@ -119,7 +103,7 @@ void Script::call(const std::string& methodKey)
     }
 
     const AutoPy argList(PyTuple_New(0));
-    PyObject_CallObject(mMethods[methodKey], argList.get());
+    PyObject_CallObject(mMethods[methodKey].get(), argList.get());
 }
 
 }

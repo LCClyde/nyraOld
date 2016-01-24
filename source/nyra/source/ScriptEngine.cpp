@@ -22,47 +22,60 @@
  * IN THE SOFTWARE.
  */
 #include <nyra/ScriptEngine.h>
-#include <nyra/Engine.h>
-
-namespace
-{
-static nyra::Engine* engine = nullptr;
-}
+#include <nyra/Logger.h>
 
 namespace nyra
 {
 //===========================================================================//
-void _set_data(size_t address)
+ScriptEngine::ScriptEngine(void* engine)
 {
-    if (address == 0)
+    // Make sure Python is initialized first.
+    if (!Py_IsInitialized())
     {
-        throw std::runtime_error("Attempting to create a void engine.");
+        Py_Initialize();
+        Logger::info("Python initialized");
     }
-    engine = reinterpret_cast<Engine*>(address);
+    else
+    {
+        throw std::runtime_error("Python was reinitialized.");
+    }
+
+    mEngineScript.reset(new Script("nyra", "", engine));
 }
 
 //===========================================================================//
-void _register_button(const std::string& name,
-                      const std::vector<size_t>& inputs)
+ScriptEngine::~ScriptEngine()
 {
-    engine->getInput().registerButton(name, inputs);
+    // Kill all python and shut it down
+    reset();
+    mEngineScript.reset(nullptr);
+
+    Py_Finalize();
 }
 
 //===========================================================================//
-bool button_pressed(const std::string& name)
+void ScriptEngine::update()
 {
-    return engine->getInput().buttonPressed(name);
+    // Call script updates
+    for (auto& script : mScripts)
+    {
+        script->call("update");
+    }
 }
 
 //===========================================================================//
-bool button_released(const std::string& name)
+void ScriptEngine::reset()
 {
-    return engine->getInput().buttonReleased(name);
+    mScripts.clear();
 }
 
 //===========================================================================//
-bool button_down(const std::string& name)
+Script* ScriptEngine::addScript(const std::string& moduleName,
+                                const std::string& className,
+                                void* data)
 {
-    return engine->getInput().buttonDown(name);
+    Script* script = new Script(moduleName, className, data);
+    mScripts.push_back(std::unique_ptr<Script>(script));
+    return script;
 }
 }

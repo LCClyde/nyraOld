@@ -39,6 +39,7 @@ externals/sfml/
 externals/box2d/
 externals/rapid_json/
 externals/tgui/
+source/nyra/python/
 
 nyra_wrap.cxx
 

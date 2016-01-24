@@ -27,12 +27,13 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <rapidjson/document.h>
+#include <nyra/JSONNode.h>
+#include <nyra/JSONReader.h>
 #include <nyra/Vector2.h>
 
 namespace nyra
 {
-class JSONActor
+struct JSONActor
 {
 public:
     JSONActor(const std::string& pathname);
@@ -40,46 +41,51 @@ public:
     //=======================================================================//
     struct JSONSprite
     {
-        JSONSprite(const rapidjson::Value& json);
+        JSONSprite(const JSONNode& json);
 
-        std::string filename;
+        const std::string filename;
+        const std::unique_ptr<const Vector2> origin;
     };
 
     //=======================================================================//
     struct JSONScript
     {
-        JSONScript(const rapidjson::Value& json);
+        JSONScript(const JSONNode& json);
 
-        std::string module;
-        std::string className;
+        const std::string module;
+        const std::string className;
 
-        std::unique_ptr<std::string> update;
+        const std::unique_ptr<const std::string> update;
     };
 
     //=======================================================================//
     struct JSONPhysics
     {
-        JSONPhysics(const rapidjson::Value& json);
+        JSONPhysics(const JSONNode& json);
 
-        std::string type;
+        const std::string type;
 
         //====================================================================//
         struct JSONPhysicsShape
         {
-            JSONPhysicsShape(const rapidjson::Value& json);
+            JSONPhysicsShape(const JSONNode& json);
 
-            std::string type;
-            Vector2 size;
-            float friction;
-            float density;
+            const std::string type;
+            const Vector2 size;
+            const double friction;
+            const double density;
         };
 
-        std::vector<JSONPhysicsShape> shapes;
+        const std::vector<JSONPhysicsShape> shapes;
     };
 
-    std::unique_ptr<JSONSprite> sprite;
-    std::unique_ptr<JSONScript> script;
-    std::unique_ptr<JSONPhysics> physics;
+private:
+    const JSONReader mReader;
+
+public:
+    const std::unique_ptr<const JSONSprite> sprite;
+    const std::unique_ptr<const JSONScript> script;
+    const std::unique_ptr<const JSONPhysics> physics;
 };
 }
 

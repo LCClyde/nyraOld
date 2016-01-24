@@ -22,169 +22,55 @@
  * IN THE SOFTWARE.
  */
 #include <nyra/JSONActor.h>
-#include <nyra/FileSystem.h>
-
-namespace
-{
-static std::string err;
-}
+#include <nyra/JSONReader.h>
 
 namespace nyra
 {
 //===========================================================================//
-JSONActor::JSONActor(const std::string& pathname)
+JSONActor::JSONActor(const std::string& pathname) :
+    mReader(pathname),
+    sprite(mReader.hasValue("sprite") ?
+            new JSONSprite(mReader.getNode("sprite")) : nullptr),
+    script(mReader.hasValue("script") ?
+            new JSONScript(mReader.getNode("script")) : nullptr),
+    physics(mReader.hasValue("physics") ?
+            new JSONPhysics(mReader.getNode("physics")) : nullptr)
 {
-    err = pathname;
-
-    rapidjson::Document document;
-    document.Parse(readFile(pathname).c_str());
-
-    if (document.HasMember("sprite"))
-    {
-        sprite.reset(new JSONSprite(document["sprite"]));
-    }
-
-    if (document.HasMember("script"))
-    {
-        script.reset(new JSONScript(document["script"]));
-    }
-
-    if (document.HasMember("physics"))
-    {
-        physics.reset(new JSONPhysics(document["physics"]));
-    }
 }
 
 //===========================================================================//
-JSONActor::JSONSprite::JSONSprite(const rapidjson::Value& json)
+JSONActor::JSONSprite::JSONSprite(const JSONNode& json) :
+    filename(json.getString("filename")),
+    origin(json.hasValue("origin") ?
+            new Vector2(json.getVector2("origin")) : nullptr)
 {
-    if (!json.HasMember("filename") || !json["filename"].IsString())
-    {
-        throw std::runtime_error(
-                "Invalid sprite filename (filename:string) for: " + err);
-    }
-    filename = json["filename"].GetString();
 }
 
 //===========================================================================//
-JSONActor::JSONScript::JSONScript(const rapidjson::Value& json)
+JSONActor::JSONScript::JSONScript(const JSONNode& json) :
+    module(json.getString("module")),
+    className(json.getString("class")),
+    update(json.hasValue("update") ?
+            new std::string(json.getString("update")) : nullptr)
 {
-    if (!json.HasMember("module") || !json["module"].IsString())
-    {
-        throw std::runtime_error(
-                "Invalid script module (module:string) for: " + err);
-    }
-
-    if (!json.HasMember("class") || !json["class"].IsString())
-    {
-        throw std::runtime_error(
-                "Invalid script class (class:string) for: " + err);
-    }
-
-    module = json["module"].GetString();
-    className = json["class"].GetString();
-
-    if (json.HasMember("update"))
-    {
-        if (!json["update"].IsString())
-        {
-            throw std::runtime_error(
-                    "Invalid script update (update:string) for: " + err);
-        }
-        update.reset(new std::string(json["update"].GetString()));
-    }
 }
 
 //===========================================================================//
-JSONActor::JSONPhysics::JSONPhysics(const rapidjson::Value& json)
+JSONActor::JSONPhysics::JSONPhysics(const JSONNode& json) :
+    type(json.getString("type")),
+    shapes(json.getArray<JSONPhysicsShape>("shape"))
 {
-    if (!json.HasMember("type") || !json["type"].IsString())
-    {
-        throw std::runtime_error(
-                "Invalid physics type (type:string) for: " + err);
-    }
-    type = json["type"].GetString();
-
-    // Check if there is only one body
-    if (!json.HasMember("shape"))
-    {
-        throw std::runtime_error(
-                "Invalid physics shape (shape:object|array) for: " + err);
-    }
-
-    if (json["shape"].IsObject())
-    {
-        shapes.push_back(JSONPhysicsShape(json["shape"]));
-    }
-    else if (json["shape"].IsArray())
-    {
-        throw std::runtime_error(
-                "Physics shape Arrays are currently not supported: " + err);
-    }
-    else
-    {
-        throw std::runtime_error(
-                "Invalid physics shape (shape:object|array) for: " + err);
-    }
 }
 
 //===========================================================================//
 JSONActor::JSONPhysics::JSONPhysicsShape::JSONPhysicsShape(
-        const rapidjson::Value& json)
+        const JSONNode& json) :
+    type(json.getString("type")),
+    size(json.getVector2("size", "width", "height")),
+    friction(json.hasValue("friction") ?
+            json.getDouble("friction") : 0.3),
+    density(json.hasValue("density") ?
+            json.getDouble("density") : 1.0)
 {
-    // Check for type
-    if (!json.HasMember("type") || !json["type"].IsString())
-    {
-        throw std::runtime_error(
-                "Invalid physics shape type (type:string) for: " + err);
-    }
-    type = json["type"].GetString();
-
-    if (json.HasMember("width") && json.HasMember("height"))
-    {
-        if (!json["width"].IsDouble() || !json["height"].IsDouble())
-        {
-            throw std::runtime_error("Invalid physics shape width/height "
-                    "(width|double height|double) for: " + err);
-        }
-
-        size.x = json["width"].GetDouble();
-        size.y = json["height"].GetDouble();
-    }
-    else
-    {
-        throw std::runtime_error("Only width/height size is currently "
-                "avaliable for physics objects: " + err);
-    }
-
-    // Check for density
-    if (json.HasMember("density"))
-    {
-        if (!json["density"].IsDouble())
-        {
-            throw std::runtime_error("Invalid physics shape density "
-                    "(density|double) for: " + err);
-        }
-        density = json["density"].GetDouble();
-    }
-    else
-    {
-        density = 1.0;
-    }
-
-    // Check for friction
-    if (json.HasMember("friction"))
-    {
-        if (!json["friction"].IsDouble())
-        {
-            throw std::runtime_error("Invalid physics shape friction "
-                    "(friction|double) for: " + err);
-        }
-        friction = json["friction"].GetDouble();
-    }
-    else
-    {
-        friction = 1.0;
-    }
 }
 }

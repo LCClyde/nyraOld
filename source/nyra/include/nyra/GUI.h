@@ -32,7 +32,7 @@ namespace nyra
 class GUI
 {
 public:
-    GUI(const std::string& pathname);
+    GUI();
 
 private:
     tgui::Gui mGUI;

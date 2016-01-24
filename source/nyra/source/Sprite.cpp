@@ -22,11 +22,14 @@
  * IN THE SOFTWARE.
  */
 #include <nyra/Sprite.h>
+#include <nyra/Logger.h>
 
 namespace nyra
 {
 Sprite::Sprite(const std::string& pathname)
 {
+    Logger::debug("Loading sprite: " + pathname);
+
     // TODO: Replace this with managed shared memory.
     mTexture.reset(new sf::Texture());
     if (!mTexture->loadFromFile(pathname))

@@ -21,53 +21,22 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_GRAPHICS_H_
-#define NYRA_GRAPHICS_H_
-
-#include <string>
-#include <memory>
-#include <nyra/Vector2.h>
-#include <nyra/Sprite.h>
-#include <SFML/Graphics.hpp>
+#include <nyra/JSONMap.h>
 
 namespace nyra
 {
-class Graphics
+//===========================================================================//
+JSONMap::JSONMap(const std::string& pathname) :
+    mReader(pathname),
+    actors(mReader.getArray<JSONActorInstance>("actors"))
 {
-public:
-    Graphics(const std::string& title,
-             const Vector2& position,
-             const Vector2& size,
-             bool fullscreen,
-             bool vsync);
-
-    bool clear();
-
-    void render();
-
-    void present();
-
-    void reset()
-    {
-        mSprites.clear();
-    }
-
-    Sprite& addSprite(const std::string& pathname);
-
-    sf::RenderWindow& getWindow()
-    {
-        return mWindow;
-    }
-
-private:
-    sf::Clock mClock;
-    size_t mFrames;
-
-    const std::string mWindowTitle;
-    sf::RenderWindow mWindow;
-    std::vector<std::unique_ptr<Sprite> > mSprites;
-};
 }
 
-#endif
-
+//===========================================================================//
+JSONMap::JSONActorInstance::JSONActorInstance(const JSONNode& json) :
+    filename(json.getString("filename")),
+    position(json.getVector2("position")),
+    rotation(json.hasValue("rotation") ? json.getDouble("rotation") : 0.0)
+{
+}
+}

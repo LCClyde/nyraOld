@@ -33,10 +33,12 @@
 #include <nyra/Sprite.h>
 #include <nyra/Actor.h>
 #include <nyra/Constants.h>
-#include <nyra/Script.h>
+#include <nyra/ScriptEngine.h>
 #include <nyra/Input.h>
 #include <nyra/Graphics.h>
 #include <nyra/Physics.h>
+#include <nyra/Logger.h>
+#include <nyra/PhysicsRenderer.h>
 
 namespace nyra
 {
@@ -46,14 +48,15 @@ public:
     Engine(const std::string& dataDir = Constants::APP_PATH + "../data/",
            const std::string& title = "Nyra Engine",
            const Vector2& position = Vector2(0, 0),
-           const Vector2& size = Vector2(1280, 720),
+           const Vector2& size = Vector2(1920, 1080),
            bool fullscreen = false,
            bool vsync = false,
            const Vector2& gravity = Vector2(0, 10.0),
-           double physicsTicksPerSecond = 30.0,
-           double pixelsPerMeters = 16.0);
+           double physicsTicksPerSecond = 30.0);
 
     bool update();
+
+    void loadMap(const std::string& filename);
 
     Actor& addActor(const std::string& filename);
 
@@ -69,34 +72,37 @@ public:
         return mInput;
     }
 
+    Logger& getLogger() const
+    {
+        return Logger::getRegisteredLogger();
+    }
+
 private:
+    void reset();
+
     sf::Sprite& addSprite(const std::string& filename);
 
     const std::string mDataDir;
 
     sf::Clock mTimer;
     Input mInput;
-    Script mEngineScript;
+
 
     // Graphics
     Graphics mGraphics;
 
     // Physics
+    PhysicsRenderer mPhysicsRenderer;
     Physics mPhysics;
 
+    // Script
+    ScriptEngine mScript;
+
     // Containers
-    std::vector<Actor> mActors;
+    std::vector<std::unique_ptr<Actor> > mActors;
     std::map<int32_t, tgui::Gui> mGui;
 
-    // TODO: We do not use these for anything. These are just here to keep
-    //       them in scope.
-    std::vector<Body> mBodies;
     std::vector<Actor*> mDynamicActors;
-
-    // TODO: I think Script will do very bad things if it is copy constructed.
-    //       it would be nice to make copy safe and efficient. For now we use
-    //       use pointers to get around the issue.
-    std::vector<std::unique_ptr<Script> > mScripts;
 };
 }
 

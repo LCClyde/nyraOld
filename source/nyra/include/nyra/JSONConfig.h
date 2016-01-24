@@ -21,15 +21,17 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_BUTTON_INTERFACE_H_
-#define NYRA_BUTTON_INTERFACE_H_
+#ifndef NYRA_JSON_CONFIG_H_
+#define NYRA_JSON_CONFIG_H_
+
+#include <string>
 
 namespace nyra
 {
-class ButtonInterface
+class JSONConfig
 {
 public:
-    ~ButtonInterface();
+    JSONConfig(const std::string& pathname);
 };
 }
 

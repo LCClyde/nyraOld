@@ -24,7 +24,7 @@
 #include <nyra/Input.h>
 #include <nyra/InputConstants.h>
 #include <SFML/Window.hpp>
-#include <iostream>
+#include <nyra/Logger.h>
 
 namespace nyra
 {
@@ -32,6 +32,7 @@ namespace nyra
 Input::Input() :
     mKeysPrev(sf::Keyboard::KeyCount, false)
 {
+    Logger::info("Input initialized");
 }
 
 //===========================================================================//

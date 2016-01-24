@@ -25,9 +25,11 @@
 #define NYRA_PHYSICS_H_
 
 #include <vector>
+#include <memory>
 #include <nyra/Vector2.h>
 #include <Box2D/Box2D.h>
 #include <nyra/Body.h>
+#include <nyra/PhysicsRenderer.h>
 
 namespace nyra
 {
@@ -36,17 +38,24 @@ class Physics
 public:
     Physics(const Vector2& gravity,
             double ticksPerSecond,
-            double pixelsPerMeters);
+            PhysicsRenderer& renderer);
 
     void update(double deltaTime);
 
-    Body addBody(Body::Type type);
+    void reset();
+
+    Body& addBody(Body::Type type);
+
+    void render()
+    {
+        mWorld.DrawDebugData();
+    }
 
 private:
     double mElapsedTime;
-    const double mPixelsPerMeters;
     const double mFrameTime;
     b2World mWorld;
+    std::vector<std::unique_ptr<Body> > mBodies;
 };
 }
 

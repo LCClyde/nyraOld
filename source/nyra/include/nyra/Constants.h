@@ -33,6 +33,8 @@ class Constants
 public:
     static const std::string APP_PATH;
     static const double DEGREES_TO_RADIANS;
+    static const double PIXELS_PER_METER;
+    static const double METERS_PER_PIXEL;
 };
 }
 

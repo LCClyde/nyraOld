@@ -21,36 +21,34 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include <nyra/ScriptActor.h>
-#include <iostream>
+#ifndef NYRA_SWIG_ENGINE_H_
+#define NYRA_SWIG_ENGINE_H_
+
+#include <string>
+#include <vector>
 
 namespace nyra
 {
-//===========================================================================//
-ScriptActor::ScriptActor() :
-    mData(nullptr)
-{
+void _register_button(const std::string& name,
+                      const std::vector<size_t>& inputs);
+
+bool button_pressed(const std::string& name);
+
+bool button_released(const std::string& name);
+
+bool button_down(const std::string& name);
+
+void log_debug(const std::string& message);
+
+void log_info(const std::string& message);
+
+void log_warning(const std::string& message);
+
+void log_error(const std::string& message);
+
+void log(const std::string& message);
+
+void _set_data(size_t address);
 }
 
-//===========================================================================//
-void ScriptActor::_set_data(size_t data)
-{
-    if (data == 0)
-    {
-        throw std::runtime_error("Attempting to create a void actor.");
-    }
-    mData = reinterpret_cast<Actor*>(data);
-}
-
-//===========================================================================//
-void ScriptActor::_set_position(const Vector2& vector) const
-{
-    mData->setPosition(vector);
-}
-
-//===========================================================================//
-Vector2 ScriptActor::_get_position() const
-{
-    return mData->getPosition();
-}
-}
+#endif

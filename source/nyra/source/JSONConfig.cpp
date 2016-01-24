@@ -21,28 +21,13 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include <iostream>
-#include <stdexcept>
-#include <nyra/Engine.h>
+#include <nyra/JSONConfig.h>
 
-int main(int argc, char** argv)
+namespace nyra
 {
-    try
-    {
-        nyra::Engine engine;
-        nyra::Actor actor = engine.addActor("test");
+//===========================================================================//
+JSONConfig::JSONConfig(const std::string& pathname)
+{
 
-        while (engine.update())
-        {
-        }
-    }
-    catch (const std::exception& ex)
-    {
-        std::cerr << "Caught standard exception: " <<
-            ex.what() << std::endl;
-    }
-    catch (...)
-    {
-        std::cerr << "Caught unnamed exception" << std::endl;
-    }
+}
 }

@@ -21,53 +21,29 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_GRAPHICS_H_
-#define NYRA_GRAPHICS_H_
+#ifndef NYRA_SWIG_ACTOR_H_
+#define NYRA_SWIG_ACTOR_H_
 
-#include <string>
-#include <memory>
+#include <stddef.h>
+#include <nyra/Actor.h>
 #include <nyra/Vector2.h>
-#include <nyra/Sprite.h>
-#include <SFML/Graphics.hpp>
 
 namespace nyra
 {
-class Graphics
+class SwigActor
 {
 public:
-    Graphics(const std::string& title,
-             const Vector2& position,
-             const Vector2& size,
-             bool fullscreen,
-             bool vsync);
+    SwigActor();
 
-    bool clear();
+    void _set_position(const Vector2& vector) const;
 
-    void render();
+    Vector2 _get_position() const;
 
-    void present();
-
-    void reset()
-    {
-        mSprites.clear();
-    }
-
-    Sprite& addSprite(const std::string& pathname);
-
-    sf::RenderWindow& getWindow()
-    {
-        return mWindow;
-    }
+    void _set_data(size_t address);
 
 private:
-    sf::Clock mClock;
-    size_t mFrames;
-
-    const std::string mWindowTitle;
-    sf::RenderWindow mWindow;
-    std::vector<std::unique_ptr<Sprite> > mSprites;
+    Actor* mData;
 };
 }
 
 #endif
-
