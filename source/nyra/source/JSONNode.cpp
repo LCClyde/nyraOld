@@ -34,6 +34,11 @@ JSONNode::JSONNode(const rapidjson::Value* value) :
 }
 
 //===========================================================================//
+JSONNode::~JSONNode()
+{
+}
+
+//===========================================================================//
 JSONNode JSONNode::getNode(const std::string& name) const
 {
     hasValue(name, true);

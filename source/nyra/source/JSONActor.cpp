@@ -68,7 +68,7 @@ JSONActor::JSONPhysics::JSONPhysicsShape::JSONPhysicsShape(
     type(json.getString("type")),
     size(json.getVector2("size", "width", "height")),
     friction(json.hasValue("friction") ?
-            json.getDouble("friction") : 0.3),
+            json.getDouble("friction") : 0.8),
     density(json.hasValue("density") ?
             json.getDouble("density") : 1.0)
 {

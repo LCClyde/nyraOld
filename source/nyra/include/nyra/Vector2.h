@@ -459,7 +459,8 @@ std::ostream& operator<<(std::ostream& os, const Vector2Impl<TypeT>& vector)
 typedef Vector2Impl<float> Vector2F;
 typedef Vector2Impl<int32_t> Vector2I;
 typedef Vector2Impl<uint32_t> Vector2U;
-typedef Vector2Impl<double> Vector2;
+typedef Vector2Impl<double> Vector2D;
+typedef Vector2Impl<float> Vector2;
 }
 
 #endif

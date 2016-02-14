@@ -36,8 +36,8 @@ Input::Input() :
 }
 
 //===========================================================================//
-void Input::registerButton(const std::string& name,
-                           const std::vector<size_t>& inputs)
+void Input::registerInput(const std::string& name,
+                          const std::vector<size_t>& inputs)
 {
     mInputs[name] = inputs;
 }

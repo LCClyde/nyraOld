@@ -33,49 +33,144 @@
 
 namespace nyra
 {
+/*
+ *  \func JSONActor
+ *  \brief Parses Actor values out of a JSON file.
+ */
 struct JSONActor
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Parses an Actor JSON file.
+     *
+     *  \param pathname The pathname to the JSON file.
+     */
     JSONActor(const std::string& pathname);
 
-    //=======================================================================//
+    /*
+     *  \class JSONSprite
+     *  \brief Parses a JSON Actor Sprite.
+     */
     struct JSONSprite
     {
+        /*
+         *  \func Constructor
+         *  \brief Parses a JSON Sprite from a json node.
+         *
+         *  \param json The node to parse from.
+         */
         JSONSprite(const JSONNode& json);
 
+        /*
+         *  \var filename
+         *  \brief The filename without extension of the sprite image.
+         */
         const std::string filename;
+
+        /*
+         *  \var origin
+         *  \brief An optional origin point represented in pixels.
+         */
         const std::unique_ptr<const Vector2> origin;
     };
 
-    //=======================================================================//
+    /*
+     *  \class JSONScript
+     *  \brief Parses a JSON Script from a json node.
+     */
     struct JSONScript
     {
+        /*
+         *  \func Constructor
+         *  \brief Parses a JSON Script from a json node.
+         *
+         *  \param json The node to parse from.
+         */
         JSONScript(const JSONNode& json);
 
+        /*
+         *  \var module
+         *  \brief The name of the Python module
+         */
         const std::string module;
+
+        /*
+         *  \var className
+         *  \brief The name of the class.
+         */
         const std::string className;
 
+        /*
+         *  \var update
+         *  \brief An optional update function name.
+         */
         const std::unique_ptr<const std::string> update;
     };
 
-    //=======================================================================//
+    /*
+     *  \class JSONPhysics
+     *  \brief Parses a JSON Physics object from a json node.
+     */
     struct JSONPhysics
     {
+        /*
+         *  \func Constructor
+         *  \brief Parse a JSON Physics object from a json node.
+         *
+         *  \param json The node to parse from
+         */
         JSONPhysics(const JSONNode& json);
 
+        /*
+         *  \var type
+         *  \brief The type of physics body (static, dynamic, etc)
+         */
         const std::string type;
 
-        //====================================================================//
+        /*
+         *  \class JSONPhysicsShape
+         *  \brief Parses a physic shape from a json node.
+         */
         struct JSONPhysicsShape
         {
+            /*
+             *  \func Constructor
+             *  \brief Parses a physics shape from a json node.
+             *
+             *  \param json The node to parse from
+             */
             JSONPhysicsShape(const JSONNode& json);
 
+            /*
+             *  \var type
+             *  \brief Describes the type of shape (circle, box, line, etc)
+             */
             const std::string type;
+
+            /*
+             *  \var size
+             *  \brief The size of the shape. Only relevant to some shapes.
+             */
             const Vector2 size;
+
+            /*
+             *  \var friction
+             *  \brief The friction for this shape
+             */
             const double friction;
+
+            /*
+             *  \var density
+             *  \brief The density for this shape.
+             */
             const double density;
         };
 
+        /*
+         *  \var shapes
+         *  \brief A list of shapes associated with this physics object.
+         */
         const std::vector<JSONPhysicsShape> shapes;
     };
 
@@ -83,8 +178,22 @@ private:
     const JSONReader mReader;
 
 public:
+    /*
+     *  \var sprite
+     *  \brief An optional sprite for this Actor
+     */
     const std::unique_ptr<const JSONSprite> sprite;
+
+    /*
+     *  \var script
+     *  \brief An optional script for this Actor
+     */
     const std::unique_ptr<const JSONScript> script;
+
+    /*
+     *  \var physics
+     *  \brief An optional physics object for this Actor.
+     */
     const std::unique_ptr<const JSONPhysics> physics;
 };
 }

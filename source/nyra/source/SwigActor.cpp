@@ -43,6 +43,16 @@ void SwigActor::_set_data(size_t data)
 }
 
 //===========================================================================//
+size_t SwigActor::_get_data() const
+{
+    if (mData == nullptr)
+    {
+        throw std::runtime_error("Attempting to retreive a null actor.");
+    }
+    return reinterpret_cast<size_t>(mData);
+}
+
+//===========================================================================//
 void SwigActor::_set_position(const Vector2& vector) const
 {
     mData->setPosition(vector);
@@ -52,5 +62,17 @@ void SwigActor::_set_position(const Vector2& vector) const
 Vector2 SwigActor::_get_position() const
 {
     return mData->getPosition();
+}
+
+//===========================================================================//
+Vector2 SwigActor::_get_velocity() const
+{
+    return mData->getVelocity();
+}
+
+//===========================================================================//
+void SwigActor::_apply_force(const Vector2& force) const
+{
+    mData->applyForce(force);
 }
 }

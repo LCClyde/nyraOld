@@ -32,7 +32,7 @@
 %include "nyra/SwigEngine.h"
 %include "nyra/InputConstants.h"
 
-%template(Vector2) nyra::Vector2Impl<double>;
+%template(Vector2) nyra::Vector2Impl<float>;
 %template(SizeTVector) std::vector<size_t>;
 
 %pythoncode
@@ -46,16 +46,26 @@ def get_position(self):
 def set_position(self, values):
     self._set_position(nyra.Vector2(values[0], values[1]))
 
-def register_button(name, values):
+def apply_force(self, force):
+    self._apply_force(nyra.Vector2(force[0], force[1]))
+
+def register_input(name, values):
     inputs = SizeTVector()
     if type(values) == int:
         inputs.push_back(values)
     else:
         for val in values:
             inputs.push_back(val)
-    nyra._register_button(name, inputs)
+    nyra._register_input(name, inputs)
+
+class Camera:
+    @staticmethod
+    def track(actor, offset=(0, 0)):
+        nyra._camera_track(actor._get_data(),
+                           nyra.Vector2(offset[0], offset[1]))
 
 Actor.position = property(get_position)
 Actor.position = Actor.position.setter(set_position)
+Actor.apply_force = apply_force
 %}
 

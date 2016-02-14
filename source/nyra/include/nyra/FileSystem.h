@@ -28,8 +28,22 @@
 
 namespace nyra
 {
+/*
+ *  \func readFile
+ *  \brief Reads an entire file into a string.
+ *
+ *  \param pathname The pathname to the file to read.
+ *  \return The contents of the file.
+ */
 std::string readFile(const std::string& pathname);
 
+/*
+ *  \func fileExists
+ *  \brief Checks if a file exists in the system
+ *
+ *  \param pathname the pathname to the file.
+ *  \return True if the file exists at the location.
+ */
 bool fileExists(const std::string& pathname);
 }
 

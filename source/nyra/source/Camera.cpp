@@ -21,34 +21,46 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include <nyra/Body.h>
+#include <nyra/Camera.h>
+#include <nyra/MathUtils.h>
 
 namespace nyra
 {
 //===========================================================================//
-Body::Body(Type type,
-           b2World& world)
+Camera::Camera() :
+    mTarget(nullptr),
+    mLerpSpeed(0.0)
 {
-    b2BodyDef bodyDef;
-    if (type == DYNAMIC)
-    {
-        bodyDef.type = b2_dynamicBody;
-    }
-    mBody = world.CreateBody(&bodyDef);
 }
 
 //===========================================================================//
-void Body::addBox(const Vector2& size,
-                  float density,
-                  float friction)
+void Camera::track(const Actor& target,
+                   const Vector2& offset,
+                   double lerpSpeed)
 {
-    b2PolygonShape shape;
-    b2FixtureDef fixture;
-    shape.SetAsBox((size.x * Constants::METERS_PER_PIXEL) / 2.0,
-                   (size.y * Constants::METERS_PER_PIXEL) / 2.0);
-    fixture.density = density;
-    fixture.friction = friction;
-    fixture.shape = &shape;
-    mBody->CreateFixture(&fixture);
+    mTarget = &target;
+    mOffset = offset;
+    mLerpSpeed = lerpSpeed;
+}
+
+//===========================================================================//
+void Camera::update(sf::RenderTarget& render)
+{
+    if (!mTarget)
+    {
+        return;
+    }
+
+    sf::View view = render.getView();
+    sf::Vector2f center =
+            (mTarget->getPosition() + mOffset).toThirdParty<sf::Vector2f>();
+    view.setCenter(center);
+    render.setView(view);
+}
+
+//===========================================================================//
+void Camera::reset()
+{
+    mTarget = nullptr;
 }
 }

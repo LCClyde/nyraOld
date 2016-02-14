@@ -21,34 +21,62 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_JSON_READER_H_
-#define NYRA_JSON_READER_H_
+#ifndef NYRA_CAMERA_H_
+#define NYRA_CAMERA_H_
 
-#include <string>
-#include <nyra/JSONNode.h>
-#include <rapidjson/document.h>
+#include <nyra/Actor.h>
+#include <SFML/Graphics.hpp>
 
 namespace nyra
 {
 /*
- *  \class JSONReader
- *  \brief Provides a top level wrapper to rapidjson::Document. This also
- *         functions as a complete JSONNode to make interacting with it
- *         transparent as you go down the nodes.
+ *  \class Camera
+ *  \brief Classed used to setup automatic camera positioning.
  */
-class JSONReader : public JSONNode
+class Camera
 {
 public:
     /*
      *  \func Constructor
-     *  \brief Loads and parses a JSON file.
-     *
-     *  \param pathname The complete pathname to the json file.
+     *  \brief Sets up an unitialized camera.
      */
-    JSONReader(const std::string& pathname);
+    Camera();
+
+    /*
+     *  \func track
+     *  \brief Sets the camera to track a target.
+     *
+     *  \param target The target to track.
+     *  \param offset An offset to apply to the target
+     *  \param speed The speed to lerp the camera. A value of 1.0
+     *         results in a snapping camera. Lerp speed is currently
+     *         not implemented.
+     */
+    void track(const Actor& target,
+               const Vector2& offset,
+               double lerpSpeed);
+
+    /*
+     *  \func update
+     *  \brief Updates the camera position.
+     *
+     *  \param deltaTime The time that has passed since the last update
+     *  \param view The view to apply changes to
+     */
+    void update(sf::RenderTarget& render);
+
+    /*
+     *  \func reset
+     *  \brief Returns the camera to a default setting.
+     */
+    void reset();
 
 private:
-    rapidjson::Document mDocument;
+    const Actor* mTarget;
+    Vector2 mOffset;
+
+    // TODO: Implement a frame independent lerp.
+    double mLerpSpeed;
 };
 }
 

@@ -54,12 +54,11 @@ ScriptEngine::~ScriptEngine()
 }
 
 //===========================================================================//
-void ScriptEngine::update()
+void ScriptEngine::callAll(const std::string& method)
 {
-    // Call script updates
     for (auto& script : mScripts)
     {
-        script->call("update");
+        script->call(method);
     }
 }
 

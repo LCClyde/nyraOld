@@ -30,16 +30,48 @@
 
 namespace nyra
 {
+/*
+ *  \class Script
+ *  \brief Creates a somewhat abstract Python object. This supports a single
+ *         module and an optional class. All methods assigned will be from
+ *         these. Methods are mapped to strings to allow them to be called
+ *         generically.
+ */
 class Script
 {
 public:
+   /*
+    *  \func Constructor
+    *  \brief Creates the Python script object.
+    *
+    *  \param moduleName The Python module
+    *  \param className The Python class. If this does not have a class
+    *         pass in an empty string. All methods will be assinged based
+    *         on the module instead.
+    *  \param data Because the Python layer is loaded through a shared
+    *         object we need to pass in the data pointer so it has access
+    *         to the memory.
+    */
     Script(const std::string& moduleName,
            const std::string& className,
            void* data);
 
+    /*
+     *  \func addMethod
+     *  \brief Registers a method to be called from C++.
+     *
+     *  \param methodKey The C++ key associated with the method
+     *  \param methodName The name of the Python method
+     */
     void addMethod(const std::string& methodKey,
                    const std::string& methodName);
 
+    /*
+     *  \func call
+     *  \brief Calls a registered method
+     *
+     *  \param methodKey The name of the method to call.
+     */
     void call(const std::string& methodKey);
 
 private:

@@ -28,34 +28,72 @@
 #include <memory>
 #include <nyra/Vector2.h>
 #include <Box2D/Box2D.h>
-#include <nyra/Body.h>
+#include <nyra/PhysicsBody.h>
 #include <nyra/PhysicsRenderer.h>
 
 namespace nyra
 {
+/*
+ *  \class Physics
+ *  \brief Top level wrapper class for Box2D. This holds the world and manages
+ *         physics bodies. This wrapper is updated on a step based timer
+ *         and thus may update at a slightly different rate than the rest of
+ *         the game.
+ */
 class Physics
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Creates a Box2D based physics object.
+     *
+     *  \param gravity The gravity in meters per second squared. Note that
+     *         (0, 0) is the top left meaning downward acceleration is
+     *         in the positive y direction.
+     *  \param renderer The physics renderer object used to draw collision
+     *         objects to screen for debug purposes.
+     */
     Physics(const Vector2& gravity,
-            double ticksPerSecond,
             PhysicsRenderer& renderer);
 
+    /*
+     *  \func update
+     *  \brief Update all physics. Note that this is not guarenteed to update
+     *         anything if the game is running faster than the physics. The
+     *         opposite can also occur. If the game is running slow, then the
+     *         physics may update multiple times to catch up.
+     *
+     *  \param deltaTime The time since the last update in seconds.
+     */
     void update(double deltaTime);
 
+    /*
+     *  \func reset
+     *  \brief Returns the physics to a starting state.
+     */
     void reset();
 
-    Body& addBody(Body::Type type);
+    /*
+     *  \func addBody
+     *  \brief Adds a new managed physics body to the phyisics system.
+     *
+     *  \param type The type of physics body to add.
+     *  \return The managed phyiscs object.
+     */
+    PhysicsBody& addBody(PhysicsBody::Type type);
 
-    void render()
+    /*
+     *  \func render
+     *  \brief Renders debug physics object to screen if they are enabled.
+     */
+    inline void render()
     {
         mWorld.DrawDebugData();
     }
 
 private:
-    double mElapsedTime;
-    const double mFrameTime;
     b2World mWorld;
-    std::vector<std::unique_ptr<Body> > mBodies;
+    std::vector<std::unique_ptr<PhysicsBody> > mBodies;
 };
 }
 

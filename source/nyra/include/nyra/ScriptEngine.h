@@ -31,22 +31,71 @@
 
 namespace nyra
 {
+/*
+ *  \class ScriptEngine
+ *  \brief Provides a top level class for wrapping the global Python calls.
+ *         This function does allocate and dealloc global objects. Creating
+ *         more than one of this class would be undefined behavior.
+ */
 class ScriptEngine
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Sets up Python.
+     *
+     *  \param engine Python needs access to the engine pointer because it
+     *         is in a different memory space than the rest of the engine.
+     */
     ScriptEngine(void* engine);
 
+    /*
+     *  \func Destructor
+     *  \brief This will shutdown the Python script layer completely.
+     */
     ~ScriptEngine();
 
+    /*
+     *  \func reset
+     *  \brief Resets the scripting layer to a starting position.
+     */
     void reset();
 
-    void update();
+    /*
+     *  \func update
+     *  \brief Calls update on all the scripts.
+     */
+    inline void update()
+    {
+        callAll("update");
+    }
 
+    /*
+     *  \func init
+     *  \brief Calls the init method on all scripts
+     */
+    void init()
+    {
+        callAll("init");
+    }
+
+    /*
+     *  \func addScript
+     *  \brief Adds a new managed script.
+     *
+     *  \param moduleName The name of the module
+     *  \param className The name of the class. If this is a module only
+     *         script, you can pass in an empty string here.
+     *  \param data Any script defined data. For actors this should point
+     *         to the underlying C++ Actor object.
+     */
     Script* addScript(const std::string& moduleName,
                       const std::string& className,
                       void* data);
 
 private:
+    void callAll(const std::string& methodName);
+
     std::unique_ptr<Script> mEngineScript;
     std::vector<std::unique_ptr<Script> > mScripts;
 };

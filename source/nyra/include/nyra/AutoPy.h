@@ -28,23 +28,81 @@
 
 namespace nyra
 {
+/*
+ *  \class AutoPy
+ *  \brief A wrapper class around a PyObject that allows it to be used
+ *         similar to an std::unique_ptr. It offers copy and move
+ *         semantics.
+ */
 class AutoPy
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Creates an AutoPy from a PyObject.
+     *
+     *  \param object The PyObject to be managed.
+     */
     AutoPy(PyObject* object = nullptr);
 
-    ~AutoPy();
-
+    /*
+     *  \func Constructor
+     *  \brief Copy constructs an AutoPy from another AutoPy.
+     *
+     *  \param other The AutoPy to copy from.
+     */
     AutoPy(const AutoPy& other);
 
+    /*
+     *  \func Constructor
+     *  \brief Moves an AutoPy from one source to another. This steals the
+     *         PyObject.
+     *
+     *  \param other The AutoPy to move from.
+     */
     AutoPy(AutoPy&& other);
 
+    /*
+     *  \func Assignment
+     *  \brief Assigns an AutoPy from another AutoPy object.
+     *
+     *  \param other The AutoPy to assign from.
+     *  \return The copied AutoPy object.
+     */
     AutoPy& operator=(const AutoPy& other);
 
+    /*
+     *  \func Assignment
+     *  \brief Assign an AutoPy from rvalue. This steals the PyObject.
+     *
+     *  \param other The AutoPy to move.
+     *  \return The AutoPy object with the managed PyObject.
+     */
     AutoPy& operator=(AutoPy&& other);
 
+    /*
+     *  \func Destructor
+     *  \brief Decrements the PyObject if it exists.
+     */
+    ~AutoPy();
+
+    /*
+     *  \func reset
+     *  \brief Updates the underlying PyObject. This will decrement the
+     *         current PyObject and it will no longer be managed here.
+     *
+     *  \param object The new PyObject to be managed. It is valid to pass
+     *         in nullptr.
+     */
     void reset(PyObject* object);
 
+    /*
+     *  \func get
+     *  \brief Returns the underlying PyObject. It is not recommended that
+     *         you do anything to adjust the reference count manually.
+     *
+     *  \return The managed PyObject.
+     */
     PyObject* get() const
     {
         return mObject;

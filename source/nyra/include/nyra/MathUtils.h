@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Clyde Stanfield
+ * Copyright (c) 2016 Clyde Stanfield
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,14 +21,26 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef NYRA_TYPES_H_
-#define NYRA_TYPES_H_
-
-#include <stdint.h>
+#ifndef NYRA_MATH_UTILS_H_
+#define NYRA_MATH_UTILS_H_
 
 namespace nyra
 {
-typedef uint64_t WindowsHandle;
+/*
+ *  \func lerp
+ *  \brief Returns a value that is delta units between a and b.
+ *
+ *  \tparam T The desired template type
+ *  \param a The starting value
+ *  \param b The target value
+ *  \param delta How from a to be do you want to go (0 -1)
+ *  \return The value that is delta units from a to b.
+ */
+template <typename T>
+T lerp(const T& a, const T& b, double delta)
+{
+    return (1.0 - delta) * a + delta * b;
+}
 }
 
 #endif

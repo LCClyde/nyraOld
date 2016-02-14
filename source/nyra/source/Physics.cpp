@@ -35,10 +35,7 @@ namespace nyra
 {
 //===========================================================================//
 Physics::Physics(const Vector2& gravity,
-                 double ticksPerSecond,
                  PhysicsRenderer& renderer) :
-    mElapsedTime(0.0),
-    mFrameTime(1.0 / ticksPerSecond),
     mWorld((gravity).toThirdParty<b2Vec2>())
 {
     Logger::info("Physics initialized");
@@ -48,14 +45,9 @@ Physics::Physics(const Vector2& gravity,
 //===========================================================================//
 void Physics::update(double deltaTime)
 {
-    mElapsedTime += deltaTime;
-    while (mElapsedTime > mFrameTime)
-    {
-        mWorld.Step(mFrameTime,
-                    VELOCITY_ITERATIONS,
-                    POSITION_ITERATIONS);
-        mElapsedTime -= mFrameTime;
-    }
+    mWorld.Step(deltaTime,
+                VELOCITY_ITERATIONS,
+                POSITION_ITERATIONS);
 }
 
 //===========================================================================//
@@ -69,10 +61,10 @@ void Physics::reset()
 }
 
 //===========================================================================//
-Body& Physics::addBody(Body::Type type)
+PhysicsBody& Physics::addBody(PhysicsBody::Type type)
 {
-    Body* body = new Body(type, mWorld);
-    mBodies.push_back(std::unique_ptr<Body>(body));
+    PhysicsBody* body = new PhysicsBody(type, mWorld);
+    mBodies.push_back(std::unique_ptr<PhysicsBody>(body));
     return *body;
 }
 }

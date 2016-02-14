@@ -31,40 +31,93 @@
 
 namespace nyra
 {
-class Body
+/*
+ *  \class PhysicsBody
+ *  \brief Represents a single phyiscs object that can be used on an Actor.
+ *         This may have multiple shapes that make up the one body. All
+ *         types of physics bodies (e.g. Static and Dynamic) are encapsulated
+ *         by this class.
+ */
+class PhysicsBody
 {
 public:
+    /*
+     *  \enum Type
+     *  \brief Used to determine how this physics object will interact
+     *         with other Phyiscs objects.
+     */
     enum Type
     {
         STATIC,
         DYNAMIC
     };
 
-    Body(Type type,
-         b2World& world);
+    /*
+     *  \func Constructor
+     *  \brief Creates a physics body.
+     *
+     *  \param type How does this physics body interact with other bodies.
+     *  \param world The top level physics world.
+     */
+    PhysicsBody(Type type,
+                b2World& world);
 
+    /*
+     *  \func addBox
+     *  \brief Adds a solid box to the physics body.
+     *
+     *  \param size The size in pixels. This should be the whole width
+     *         and height of the box.
+     *  \param density The density of the object.
+     *  \param friction The friction of the object.
+     */
     void addBox(const Vector2& size,
                 float density,
                 float friction);
 
-    Vector2 getPosition() const
+    /*
+     *  \func getPosition
+     *  \brief Obtains the position of the physics body.
+     *
+     *  \return The current position.
+     */
+    inline Vector2 getPosition() const
     {
         return Vector2(mBody->GetPosition()) * Constants::PIXELS_PER_METER;
     }
 
-    void setPosition(const Vector2& position)
+    /*
+     *  \func setPosition
+     *  \brief Sets the position of the physics body. Note that this ignores
+     *         physics calculations.
+     *
+     *  \param position The desired position.
+     */
+    inline void setPosition(const Vector2& position)
     {
         mBody->SetTransform(
                 (position * Constants::METERS_PER_PIXEL).toThirdParty<b2Vec2>(),
                 mBody->GetAngle());
     }
 
-    const b2Body& get() const
+    /*
+     *  \func get
+     *  \brief Returns the underlying native physics body.
+     *
+     *  \return The Box2D phyiscs object.
+     */
+    inline const b2Body& get() const
     {
         return *mBody;
     }
 
-    b2Body& get()
+    /*
+     *  \func get
+     *  \brief Returns the underlying native physics body.
+     *
+     *  \return The Box2D phyiscs object.
+     */
+    inline b2Body& get()
     {
         return *mBody;
     }

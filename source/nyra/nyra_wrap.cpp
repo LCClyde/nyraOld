@@ -3471,6 +3471,21 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 #include <vector>
 
 
+SWIGINTERNINLINE PyObject* 
+SWIG_From_unsigned_SS_long  (unsigned long value)
+{
+  return (value > LONG_MAX) ?
+    PyLong_FromUnsignedLong(value) : PyLong_FromLong(static_cast< long >(value)); 
+}
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_size_t  (size_t value)
+{    
+  return SWIG_From_unsigned_SS_long  (static_cast< unsigned long >(value));
+}
+
+
 SWIGINTERN swig_type_info*
 SWIG_pchar_descriptor(void)
 {
@@ -3598,7 +3613,51 @@ SWIGINTERNINLINE PyObject*
 }
 
 
+/* Getting isfinite working pre C99 across multiple platforms is non-trivial. Users can provide SWIG_isfinite on older platforms. */
+#ifndef SWIG_isfinite
+# if defined(isfinite)
+#  define SWIG_isfinite(X) (isfinite(X))
+# elif defined(_MSC_VER)
+#  define SWIG_isfinite(X) (_finite(X))
+# elif defined(__sun) && defined(__SVR4)
+#  include <ieeefp.h>
+#  define SWIG_isfinite(X) (finite(X))
+# endif
+#endif
+
+
+/* Accept infinite as a valid float value unless we are unable to check if a value is finite */
+#ifdef SWIG_isfinite
+# define SWIG_Float_Overflow_Check(X) ((X < -FLT_MAX || X > FLT_MAX) && SWIG_isfinite(X))
+#else
+# define SWIG_Float_Overflow_Check(X) ((X < -FLT_MAX || X > FLT_MAX))
+#endif
+
+
+SWIGINTERN int
+SWIG_AsVal_float (PyObject * obj, float *val)
+{
+  double v;
+  int res = SWIG_AsVal_double (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if (SWIG_Float_Overflow_Check(v)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< float >(v);
+    }
+  }  
+  return res;
+}
+
+
   #define SWIG_From_double   PyFloat_FromDouble 
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_float  (float value)
+{    
+  return SWIG_From_double  (value);
+}
 
 
 namespace swig {  
@@ -4607,21 +4666,6 @@ namespace swig
     PyObject* _seq;
   };
 
-}
-
-
-SWIGINTERNINLINE PyObject* 
-SWIG_From_unsigned_SS_long  (unsigned long value)
-{
-  return (value > LONG_MAX) ?
-    PyLong_FromUnsignedLong(value) : PyLong_FromLong(static_cast< long >(value)); 
-}
-
-
-SWIGINTERNINLINE PyObject *
-SWIG_From_size_t  (size_t value)
-{    
-  return SWIG_From_unsigned_SS_long  (static_cast< unsigned long >(value));
 }
 
 
@@ -5906,7 +5950,7 @@ SWIGINTERN PyObject *_wrap_Actor__set_position(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Actor__set_position" "', argument " "1"" of type '" "nyra::SwigActor const *""'"); 
   }
   arg1 = reinterpret_cast< nyra::SwigActor * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Actor__set_position" "', argument " "2"" of type '" "nyra::Vector2 const &""'"); 
   }
@@ -5955,7 +5999,80 @@ SWIGINTERN PyObject *_wrap_Actor__get_position(PyObject *SWIGUNUSEDPARM(self), P
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj((new nyra::Vector2(static_cast< const nyra::Vector2& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new nyra::Vector2(static_cast< const nyra::Vector2& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Actor__get_velocity(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  nyra::SwigActor *arg1 = (nyra::SwigActor *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  nyra::Vector2 result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Actor__get_velocity",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__SwigActor, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Actor__get_velocity" "', argument " "1"" of type '" "nyra::SwigActor const *""'"); 
+  }
+  arg1 = reinterpret_cast< nyra::SwigActor * >(argp1);
+  {
+    try
+    {
+      result = ((nyra::SwigActor const *)arg1)->_get_velocity();
+    }
+    catch (const std::exception& e)
+    {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new nyra::Vector2(static_cast< const nyra::Vector2& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Actor__apply_force(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  nyra::SwigActor *arg1 = (nyra::SwigActor *) 0 ;
+  nyra::Vector2 *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Actor__apply_force",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__SwigActor, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Actor__apply_force" "', argument " "1"" of type '" "nyra::SwigActor const *""'"); 
+  }
+  arg1 = reinterpret_cast< nyra::SwigActor * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Actor__apply_force" "', argument " "2"" of type '" "nyra::Vector2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Actor__apply_force" "', argument " "2"" of type '" "nyra::Vector2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< nyra::Vector2 * >(argp2);
+  {
+    try
+    {
+      ((nyra::SwigActor const *)arg1)->_apply_force((nyra::Vector2 const &)*arg2);
+    }
+    catch (const std::exception& e)
+    {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
@@ -6001,6 +6118,37 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Actor__get_data(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  nyra::SwigActor *arg1 = (nyra::SwigActor *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  size_t result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Actor__get_data",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__SwigActor, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Actor__get_data" "', argument " "1"" of type '" "nyra::SwigActor const *""'"); 
+  }
+  arg1 = reinterpret_cast< nyra::SwigActor * >(argp1);
+  {
+    try
+    {
+      result = ((nyra::SwigActor const *)arg1)->_get_data();
+    }
+    catch (const std::exception& e)
+    {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_Actor(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   nyra::SwigActor *arg1 = (nyra::SwigActor *) 0 ;
@@ -6038,7 +6186,7 @@ SWIGINTERN PyObject *Actor_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *_wrap__register_button(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap__register_input(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
   std::vector< size_t,std::allocator< size_t > > *arg2 = 0 ;
@@ -6048,30 +6196,30 @@ SWIGINTERN PyObject *_wrap__register_button(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:_register_button",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:_register_input",&obj0,&obj1)) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(obj0, &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "_register_button" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "_register_input" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "_register_button" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "_register_input" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     arg1 = ptr;
   }
   res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_size_t_std__allocatorT_size_t_t_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "_register_button" "', argument " "2"" of type '" "std::vector< size_t,std::allocator< size_t > > const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "_register_input" "', argument " "2"" of type '" "std::vector< size_t,std::allocator< size_t > > const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "_register_button" "', argument " "2"" of type '" "std::vector< size_t,std::allocator< size_t > > const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "_register_input" "', argument " "2"" of type '" "std::vector< size_t,std::allocator< size_t > > const &""'"); 
   }
   arg2 = reinterpret_cast< std::vector< size_t,std::allocator< size_t > > * >(argp2);
   {
     try
     {
-      nyra::_register_button((std::string const &)*arg1,(std::vector< size_t,std::allocator< size_t > > const &)*arg2);
+      nyra::_register_input((std::string const &)*arg1,(std::vector< size_t,std::allocator< size_t > > const &)*arg2);
     }
     catch (const std::exception& e)
     {
@@ -6386,6 +6534,48 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap__camera_track(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  size_t arg1 ;
+  nyra::Vector2 *arg2 = 0 ;
+  size_t val1 ;
+  int ecode1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:_camera_track",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_size_t(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "_camera_track" "', argument " "1"" of type '" "size_t""'");
+  } 
+  arg1 = static_cast< size_t >(val1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "_camera_track" "', argument " "2"" of type '" "nyra::Vector2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "_camera_track" "', argument " "2"" of type '" "nyra::Vector2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< nyra::Vector2 * >(argp2);
+  {
+    try
+    {
+      nyra::_camera_track(arg1,(nyra::Vector2Impl< float > const &)*arg2);
+    }
+    catch (const std::exception& e)
+    {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap__set_data(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   size_t arg1 ;
@@ -6477,20 +6667,20 @@ SWIGINTERN PyObject *Keyboard_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObj
 
 SWIGINTERN PyObject *_wrap_new_Vector2__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *result = 0 ;
+  nyra::Vector2Impl< float > *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)":new_Vector2")) SWIG_fail;
   {
     try
     {
-      result = (nyra::Vector2Impl< double > *)new nyra::Vector2Impl< double >();
+      result = (nyra::Vector2Impl< float > *)new nyra::Vector2Impl< float >();
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_NEW |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6499,42 +6689,42 @@ fail:
 
 SWIGINTERN PyObject *_wrap_new_Vector2__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  double *arg1 = 0 ;
-  double *arg2 = 0 ;
-  double temp1 ;
-  double val1 ;
+  float *arg1 = 0 ;
+  float *arg2 = 0 ;
+  float temp1 ;
+  float val1 ;
   int ecode1 = 0 ;
-  double temp2 ;
-  double val2 ;
+  float temp2 ;
+  float val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > *result = 0 ;
+  nyra::Vector2Impl< float > *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:new_Vector2",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_double(obj0, &val1);
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Vector2" "', argument " "1"" of type '" "double""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Vector2" "', argument " "1"" of type '" "float""'");
   } 
-  temp1 = static_cast< double >(val1);
+  temp1 = static_cast< float >(val1);
   arg1 = &temp1;
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_Vector2" "', argument " "2"" of type '" "double""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_Vector2" "', argument " "2"" of type '" "float""'");
   } 
-  temp2 = static_cast< double >(val2);
+  temp2 = static_cast< float >(val2);
   arg2 = &temp2;
   {
     try
     {
-      result = (nyra::Vector2Impl< double > *)new nyra::Vector2Impl< double >((double const &)*arg1,(double const &)*arg2);
+      result = (nyra::Vector2Impl< float > *)new nyra::Vector2Impl< float >((float const &)*arg1,(float const &)*arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_NEW |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6557,12 +6747,12 @@ SWIGINTERN PyObject *_wrap_new_Vector2(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     {
-      int res = SWIG_AsVal_double(argv[0], NULL);
+      int res = SWIG_AsVal_float(argv[0], NULL);
       _v = SWIG_CheckState(res);
     }
     if (_v) {
       {
-        int res = SWIG_AsVal_double(argv[1], NULL);
+        int res = SWIG_AsVal_float(argv[1], NULL);
         _v = SWIG_CheckState(res);
       }
       if (_v) {
@@ -6574,16 +6764,16 @@ SWIGINTERN PyObject *_wrap_new_Vector2(PyObject *self, PyObject *args) {
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_Vector2'.\n"
     "  Possible C/C++ prototypes are:\n"
-    "    nyra::Vector2Impl< double >::Vector2Impl()\n"
-    "    nyra::Vector2Impl< double >::Vector2Impl(double const &,double const &)\n");
+    "    nyra::Vector2Impl< float >::Vector2Impl()\n"
+    "    nyra::Vector2Impl< float >::Vector2Impl(float const &,float const &)\n");
   return 0;
 }
 
 
 SWIGINTERN PyObject *_wrap_Vector2___eq__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > *arg2 = 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -6593,23 +6783,23 @@ SWIGINTERN PyObject *_wrap_Vector2___eq__(PyObject *SWIGUNUSEDPARM(self), PyObje
   bool result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___eq__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___eq__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___eq__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___eq__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___eq__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___eq__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___eq__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
-  arg2 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+  arg2 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
   {
     try
     {
-      result = (bool)((nyra::Vector2Impl< double > const *)arg1)->operator ==((nyra::Vector2Impl< double > const &)*arg2);
+      result = (bool)((nyra::Vector2Impl< float > const *)arg1)->operator ==((nyra::Vector2Impl< float > const &)*arg2);
     }
     catch (const std::exception& e)
     {
@@ -6625,8 +6815,8 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___ne__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > *arg2 = 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -6636,23 +6826,23 @@ SWIGINTERN PyObject *_wrap_Vector2___ne__(PyObject *SWIGUNUSEDPARM(self), PyObje
   bool result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___ne__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___ne__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___ne__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___ne__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___ne__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___ne__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___ne__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
-  arg2 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+  arg2 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
   {
     try
     {
-      result = (bool)((nyra::Vector2Impl< double > const *)arg1)->operator !=((nyra::Vector2Impl< double > const &)*arg2);
+      result = (bool)((nyra::Vector2Impl< float > const *)arg1)->operator !=((nyra::Vector2Impl< float > const &)*arg2);
     }
     catch (const std::exception& e)
     {
@@ -6668,41 +6858,41 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___iadd__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > *arg2 = 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > *result = 0 ;
+  nyra::Vector2Impl< float > *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___iadd__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___iadd__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___iadd__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___iadd__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___iadd__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___iadd__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___iadd__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
-  arg2 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+  arg2 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
   {
     try
     {
-      result = (nyra::Vector2Impl< double > *) &(arg1)->operator +=((nyra::Vector2Impl< double > const &)*arg2);
+      result = (nyra::Vector2Impl< float > *) &(arg1)->operator +=((nyra::Vector2Impl< float > const &)*arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6711,41 +6901,41 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___isub__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > *arg2 = 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > *result = 0 ;
+  nyra::Vector2Impl< float > *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___isub__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___isub__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___isub__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___isub__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___isub__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___isub__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___isub__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
-  arg2 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+  arg2 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
   {
     try
     {
-      result = (nyra::Vector2Impl< double > *) &(arg1)->operator -=((nyra::Vector2Impl< double > const &)*arg2);
+      result = (nyra::Vector2Impl< float > *) &(arg1)->operator -=((nyra::Vector2Impl< float > const &)*arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6754,41 +6944,41 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___imul____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > *arg2 = 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > *result = 0 ;
+  nyra::Vector2Impl< float > *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___imul__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___imul__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___imul__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___imul__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___imul__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___imul__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___imul__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
-  arg2 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+  arg2 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
   {
     try
     {
-      result = (nyra::Vector2Impl< double > *) &(arg1)->operator *=((nyra::Vector2Impl< double > const &)*arg2);
+      result = (nyra::Vector2Impl< float > *) &(arg1)->operator *=((nyra::Vector2Impl< float > const &)*arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6797,41 +6987,41 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___idiv____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > *arg2 = 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > *result = 0 ;
+  nyra::Vector2Impl< float > *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___idiv__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___idiv__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___idiv__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___idiv__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___idiv__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___idiv__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___idiv__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
-  arg2 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+  arg2 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
   {
     try
     {
-      result = (nyra::Vector2Impl< double > *) &(arg1)->operator /=((nyra::Vector2Impl< double > const &)*arg2);
+      result = (nyra::Vector2Impl< float > *) &(arg1)->operator /=((nyra::Vector2Impl< float > const &)*arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6840,7 +7030,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___imul____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   double arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -6848,14 +7038,14 @@ SWIGINTERN PyObject *_wrap_Vector2___imul____SWIG_1(PyObject *SWIGUNUSEDPARM(sel
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > *result = 0 ;
+  nyra::Vector2Impl< float > *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___imul__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___imul__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___imul__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   ecode2 = SWIG_AsVal_double(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector2___imul__" "', argument " "2"" of type '" "double""'");
@@ -6864,14 +7054,14 @@ SWIGINTERN PyObject *_wrap_Vector2___imul____SWIG_1(PyObject *SWIGUNUSEDPARM(sel
   {
     try
     {
-      result = (nyra::Vector2Impl< double > *) &(arg1)->operator *=(arg2);
+      result = (nyra::Vector2Impl< float > *) &(arg1)->operator *=(arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6891,10 +7081,10 @@ SWIGINTERN PyObject *_wrap_Vector2___imul__(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         return _wrap_Vector2___imul____SWIG_0(self, args);
@@ -6904,7 +7094,7 @@ SWIGINTERN PyObject *_wrap_Vector2___imul__(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       {
@@ -6920,15 +7110,15 @@ SWIGINTERN PyObject *_wrap_Vector2___imul__(PyObject *self, PyObject *args) {
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Vector2___imul__'.\n"
     "  Possible C/C++ prototypes are:\n"
-    "    nyra::Vector2Impl< double >::operator *=(nyra::Vector2Impl< double > const &)\n"
-    "    nyra::Vector2Impl< double >::operator *=(double)\n");
+    "    nyra::Vector2Impl< float >::operator *=(nyra::Vector2Impl< float > const &)\n"
+    "    nyra::Vector2Impl< float >::operator *=(double)\n");
   return 0;
 }
 
 
 SWIGINTERN PyObject *_wrap_Vector2___idiv____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   double arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -6936,14 +7126,14 @@ SWIGINTERN PyObject *_wrap_Vector2___idiv____SWIG_1(PyObject *SWIGUNUSEDPARM(sel
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > *result = 0 ;
+  nyra::Vector2Impl< float > *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___idiv__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___idiv__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___idiv__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   ecode2 = SWIG_AsVal_double(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector2___idiv__" "', argument " "2"" of type '" "double""'");
@@ -6952,14 +7142,14 @@ SWIGINTERN PyObject *_wrap_Vector2___idiv____SWIG_1(PyObject *SWIGUNUSEDPARM(sel
   {
     try
     {
-      result = (nyra::Vector2Impl< double > *) &(arg1)->operator /=(arg2);
+      result = (nyra::Vector2Impl< float > *) &(arg1)->operator /=(arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6979,10 +7169,10 @@ SWIGINTERN PyObject *_wrap_Vector2___idiv__(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         return _wrap_Vector2___idiv____SWIG_0(self, args);
@@ -6992,7 +7182,7 @@ SWIGINTERN PyObject *_wrap_Vector2___idiv__(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       {
@@ -7008,39 +7198,39 @@ SWIGINTERN PyObject *_wrap_Vector2___idiv__(PyObject *self, PyObject *args) {
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Vector2___idiv__'.\n"
     "  Possible C/C++ prototypes are:\n"
-    "    nyra::Vector2Impl< double >::operator /=(nyra::Vector2Impl< double > const &)\n"
-    "    nyra::Vector2Impl< double >::operator /=(double)\n");
+    "    nyra::Vector2Impl< float >::operator /=(nyra::Vector2Impl< float > const &)\n"
+    "    nyra::Vector2Impl< float >::operator /=(double)\n");
   return 0;
 }
 
 
 SWIGINTERN PyObject *_wrap_Vector2___add__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > arg2 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > result;
+  nyra::Vector2Impl< float > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___add__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___add__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___add__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___add__" "', argument " "2"" of type '" "nyra::Vector2Impl< double >""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___add__" "', argument " "2"" of type '" "nyra::Vector2Impl< float >""'"); 
     }  
     if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___add__" "', argument " "2"" of type '" "nyra::Vector2Impl< double >""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___add__" "', argument " "2"" of type '" "nyra::Vector2Impl< float >""'");
     } else {
-      nyra::Vector2Impl< double > * temp = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+      nyra::Vector2Impl< float > * temp = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
       arg2 = *temp;
       if (SWIG_IsNewObj(res2)) delete temp;
     }
@@ -7048,14 +7238,14 @@ SWIGINTERN PyObject *_wrap_Vector2___add__(PyObject *SWIGUNUSEDPARM(self), PyObj
   {
     try
     {
-      result = ((nyra::Vector2Impl< double > const *)arg1)->operator +(arg2);
+      result = ((nyra::Vector2Impl< float > const *)arg1)->operator +(arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< double >(static_cast< const nyra::Vector2Impl< double >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< float >(static_cast< const nyra::Vector2Impl< float >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -7064,31 +7254,31 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___sub__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > arg2 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > result;
+  nyra::Vector2Impl< float > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___sub__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___sub__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___sub__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___sub__" "', argument " "2"" of type '" "nyra::Vector2Impl< double >""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___sub__" "', argument " "2"" of type '" "nyra::Vector2Impl< float >""'"); 
     }  
     if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___sub__" "', argument " "2"" of type '" "nyra::Vector2Impl< double >""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___sub__" "', argument " "2"" of type '" "nyra::Vector2Impl< float >""'");
     } else {
-      nyra::Vector2Impl< double > * temp = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+      nyra::Vector2Impl< float > * temp = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
       arg2 = *temp;
       if (SWIG_IsNewObj(res2)) delete temp;
     }
@@ -7096,14 +7286,14 @@ SWIGINTERN PyObject *_wrap_Vector2___sub__(PyObject *SWIGUNUSEDPARM(self), PyObj
   {
     try
     {
-      result = ((nyra::Vector2Impl< double > const *)arg1)->operator -(arg2);
+      result = ((nyra::Vector2Impl< float > const *)arg1)->operator -(arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< double >(static_cast< const nyra::Vector2Impl< double >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< float >(static_cast< const nyra::Vector2Impl< float >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -7112,31 +7302,31 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___mul____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > arg2 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > result;
+  nyra::Vector2Impl< float > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___mul__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___mul__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___mul__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___mul__" "', argument " "2"" of type '" "nyra::Vector2Impl< double >""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___mul__" "', argument " "2"" of type '" "nyra::Vector2Impl< float >""'"); 
     }  
     if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___mul__" "', argument " "2"" of type '" "nyra::Vector2Impl< double >""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___mul__" "', argument " "2"" of type '" "nyra::Vector2Impl< float >""'");
     } else {
-      nyra::Vector2Impl< double > * temp = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+      nyra::Vector2Impl< float > * temp = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
       arg2 = *temp;
       if (SWIG_IsNewObj(res2)) delete temp;
     }
@@ -7144,14 +7334,14 @@ SWIGINTERN PyObject *_wrap_Vector2___mul____SWIG_0(PyObject *SWIGUNUSEDPARM(self
   {
     try
     {
-      result = ((nyra::Vector2Impl< double > const *)arg1)->operator *(arg2);
+      result = ((nyra::Vector2Impl< float > const *)arg1)->operator *(arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< double >(static_cast< const nyra::Vector2Impl< double >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< float >(static_cast< const nyra::Vector2Impl< float >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -7160,41 +7350,41 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___div____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  nyra::Vector2Impl< double > *arg2 = 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  nyra::Vector2Impl< float > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > result;
+  nyra::Vector2Impl< float > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___div__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___div__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___div__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_double_t,  0  | 0);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_nyra__Vector2ImplT_float_t,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___div__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector2___div__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___div__" "', argument " "2"" of type '" "nyra::Vector2Impl< double > const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector2___div__" "', argument " "2"" of type '" "nyra::Vector2Impl< float > const &""'"); 
   }
-  arg2 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp2);
+  arg2 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp2);
   {
     try
     {
-      result = ((nyra::Vector2Impl< double > const *)arg1)->operator /((nyra::Vector2Impl< double > const &)*arg2);
+      result = ((nyra::Vector2Impl< float > const *)arg1)->operator /((nyra::Vector2Impl< float > const &)*arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< double >(static_cast< const nyra::Vector2Impl< double >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< float >(static_cast< const nyra::Vector2Impl< float >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -7203,7 +7393,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___mul____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   double arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -7211,14 +7401,14 @@ SWIGINTERN PyObject *_wrap_Vector2___mul____SWIG_1(PyObject *SWIGUNUSEDPARM(self
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > result;
+  nyra::Vector2Impl< float > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___mul__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___mul__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___mul__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   ecode2 = SWIG_AsVal_double(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector2___mul__" "', argument " "2"" of type '" "double""'");
@@ -7227,14 +7417,14 @@ SWIGINTERN PyObject *_wrap_Vector2___mul____SWIG_1(PyObject *SWIGUNUSEDPARM(self
   {
     try
     {
-      result = ((nyra::Vector2Impl< double > const *)arg1)->operator *(arg2);
+      result = ((nyra::Vector2Impl< float > const *)arg1)->operator *(arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< double >(static_cast< const nyra::Vector2Impl< double >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< float >(static_cast< const nyra::Vector2Impl< float >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -7254,10 +7444,10 @@ SWIGINTERN PyObject *_wrap_Vector2___mul__(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         return _wrap_Vector2___mul____SWIG_0(self, args);
@@ -7267,7 +7457,7 @@ SWIGINTERN PyObject *_wrap_Vector2___mul__(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       {
@@ -7288,7 +7478,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2___div____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   double arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -7296,14 +7486,14 @@ SWIGINTERN PyObject *_wrap_Vector2___div____SWIG_1(PyObject *SWIGUNUSEDPARM(self
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  nyra::Vector2Impl< double > result;
+  nyra::Vector2Impl< float > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2___div__",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___div__" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2___div__" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   ecode2 = SWIG_AsVal_double(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector2___div__" "', argument " "2"" of type '" "double""'");
@@ -7312,14 +7502,14 @@ SWIGINTERN PyObject *_wrap_Vector2___div____SWIG_1(PyObject *SWIGUNUSEDPARM(self
   {
     try
     {
-      result = ((nyra::Vector2Impl< double > const *)arg1)->operator /(arg2);
+      result = ((nyra::Vector2Impl< float > const *)arg1)->operator /(arg2);
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< double >(static_cast< const nyra::Vector2Impl< double >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new nyra::Vector2Impl< float >(static_cast< const nyra::Vector2Impl< float >& >(result))), SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -7339,10 +7529,10 @@ SWIGINTERN PyObject *_wrap_Vector2___div__(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         return _wrap_Vector2___div____SWIG_0(self, args);
@@ -7352,7 +7542,7 @@ SWIGINTERN PyObject *_wrap_Vector2___div__(PyObject *self, PyObject *args) {
   if (argc == 2) {
     int _v;
     void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0);
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       {
@@ -7373,29 +7563,29 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_sum(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  double result;
+  float result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Vector2_sum",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_sum" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_sum" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
     try
     {
-      result = (double)((nyra::Vector2Impl< double > const *)arg1)->sum();
+      result = (float)((nyra::Vector2Impl< float > const *)arg1)->sum();
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_From_double(static_cast< double >(result));
+  resultobj = SWIG_From_float(static_cast< float >(result));
   return resultobj;
 fail:
   return NULL;
@@ -7404,29 +7594,29 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_product(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  double result;
+  float result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Vector2_product",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_product" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_product" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
     try
     {
-      result = (double)((nyra::Vector2Impl< double > const *)arg1)->product();
+      result = (float)((nyra::Vector2Impl< float > const *)arg1)->product();
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_From_double(static_cast< double >(result));
+  resultobj = SWIG_From_float(static_cast< float >(result));
   return resultobj;
 fail:
   return NULL;
@@ -7435,29 +7625,29 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_sumSquares(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  double result;
+  float result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Vector2_sumSquares",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_sumSquares" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_sumSquares" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
     try
     {
-      result = (double)((nyra::Vector2Impl< double > const *)arg1)->sumSquares();
+      result = (float)((nyra::Vector2Impl< float > const *)arg1)->sumSquares();
     }
     catch (const std::exception& e)
     {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
   }
-  resultobj = SWIG_From_double(static_cast< double >(result));
+  resultobj = SWIG_From_float(static_cast< float >(result));
   return resultobj;
 fail:
   return NULL;
@@ -7466,22 +7656,22 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_length(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   double result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Vector2_length",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_length" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_length" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
     try
     {
-      result = (double)((nyra::Vector2Impl< double > const *)arg1)->length();
+      result = (double)((nyra::Vector2Impl< float > const *)arg1)->length();
     }
     catch (const std::exception& e)
     {
@@ -7497,22 +7687,22 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_lengthSquared(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   double result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Vector2_lengthSquared",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_lengthSquared" "', argument " "1"" of type '" "nyra::Vector2Impl< double > const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_lengthSquared" "', argument " "1"" of type '" "nyra::Vector2Impl< float > const *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
     try
     {
-      result = (double)((nyra::Vector2Impl< double > const *)arg1)->lengthSquared();
+      result = (double)((nyra::Vector2Impl< float > const *)arg1)->lengthSquared();
     }
     catch (const std::exception& e)
     {
@@ -7528,17 +7718,17 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_normalize(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Vector2_normalize",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_normalize" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_normalize" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
     try
     {
@@ -7558,26 +7748,26 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_x_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  double arg2 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  float arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  double val2 ;
+  float val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2_x_set",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_x_set" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_x_set" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector2_x_set" "', argument " "2"" of type '" "double""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector2_x_set" "', argument " "2"" of type '" "float""'");
   } 
-  arg2 = static_cast< double >(val2);
+  arg2 = static_cast< float >(val2);
   if (arg1) (arg1)->x = arg2;
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -7588,20 +7778,20 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_x_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  double result;
+  float result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Vector2_x_get",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_x_get" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_x_get" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  result = (double) ((arg1)->x);
-  resultobj = SWIG_From_double(static_cast< double >(result));
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  result = (float) ((arg1)->x);
+  resultobj = SWIG_From_float(static_cast< float >(result));
   return resultobj;
 fail:
   return NULL;
@@ -7610,26 +7800,26 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_y_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
-  double arg2 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
+  float arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  double val2 ;
+  float val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Vector2_y_set",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_y_set" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_y_set" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector2_y_set" "', argument " "2"" of type '" "double""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector2_y_set" "', argument " "2"" of type '" "float""'");
   } 
-  arg2 = static_cast< double >(val2);
+  arg2 = static_cast< float >(val2);
   if (arg1) (arg1)->y = arg2;
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -7640,20 +7830,20 @@ fail:
 
 SWIGINTERN PyObject *_wrap_Vector2_y_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  double result;
+  float result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Vector2_y_get",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_y_get" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector2_y_get" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
-  result = (double) ((arg1)->y);
-  resultobj = SWIG_From_double(static_cast< double >(result));
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
+  result = (float) ((arg1)->y);
+  resultobj = SWIG_From_float(static_cast< float >(result));
   return resultobj;
 fail:
   return NULL;
@@ -7662,17 +7852,17 @@ fail:
 
 SWIGINTERN PyObject *_wrap_delete_Vector2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  nyra::Vector2Impl< double > *arg1 = (nyra::Vector2Impl< double > *) 0 ;
+  nyra::Vector2Impl< float > *arg1 = (nyra::Vector2Impl< float > *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:delete_Vector2",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_Vector2" "', argument " "1"" of type '" "nyra::Vector2Impl< double > *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_Vector2" "', argument " "1"" of type '" "nyra::Vector2Impl< float > *""'"); 
   }
-  arg1 = reinterpret_cast< nyra::Vector2Impl< double > * >(argp1);
+  arg1 = reinterpret_cast< nyra::Vector2Impl< float > * >(argp1);
   {
     try
     {
@@ -7693,7 +7883,7 @@ fail:
 SWIGINTERN PyObject *Vector2_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_nyra__Vector2ImplT_double_t, SWIG_NewClientData(obj));
+  SWIG_TypeNewClientData(SWIGTYPE_p_nyra__Vector2ImplT_float_t, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
 
@@ -10015,10 +10205,13 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_Actor", _wrap_new_Actor, METH_VARARGS, NULL},
 	 { (char *)"Actor__set_position", _wrap_Actor__set_position, METH_VARARGS, NULL},
 	 { (char *)"Actor__get_position", _wrap_Actor__get_position, METH_VARARGS, NULL},
+	 { (char *)"Actor__get_velocity", _wrap_Actor__get_velocity, METH_VARARGS, NULL},
+	 { (char *)"Actor__apply_force", _wrap_Actor__apply_force, METH_VARARGS, NULL},
 	 { (char *)"Actor__set_data", _wrap_Actor__set_data, METH_VARARGS, NULL},
+	 { (char *)"Actor__get_data", _wrap_Actor__get_data, METH_VARARGS, NULL},
 	 { (char *)"delete_Actor", _wrap_delete_Actor, METH_VARARGS, NULL},
 	 { (char *)"Actor_swigregister", Actor_swigregister, METH_VARARGS, NULL},
-	 { (char *)"_register_button", _wrap__register_button, METH_VARARGS, NULL},
+	 { (char *)"_register_input", _wrap__register_input, METH_VARARGS, NULL},
 	 { (char *)"button_pressed", _wrap_button_pressed, METH_VARARGS, NULL},
 	 { (char *)"button_released", _wrap_button_released, METH_VARARGS, NULL},
 	 { (char *)"button_down", _wrap_button_down, METH_VARARGS, NULL},
@@ -10027,6 +10220,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"log_warning", _wrap_log_warning, METH_VARARGS, NULL},
 	 { (char *)"log_error", _wrap_log_error, METH_VARARGS, NULL},
 	 { (char *)"log", _wrap_log, METH_VARARGS, NULL},
+	 { (char *)"_camera_track", _wrap__camera_track, METH_VARARGS, NULL},
 	 { (char *)"_set_data", _wrap__set_data, METH_VARARGS, NULL},
 	 { (char *)"new_Keyboard", _wrap_new_Keyboard, METH_VARARGS, NULL},
 	 { (char *)"delete_Keyboard", _wrap_delete_Keyboard, METH_VARARGS, NULL},
@@ -10099,8 +10293,8 @@ static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_difference_type = {"_p_difference_type", "difference_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_nyra__Keyboard = {"_p_nyra__Keyboard", "nyra::Keyboard *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_nyra__SwigActor = {"_p_nyra__SwigActor", "nyra::SwigActor *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_nyra__Vector2ImplT_double_t = {"_p_nyra__Vector2ImplT_double_t", "nyra::Vector2 *|nyra::Vector2Impl< double > *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_nyra__Vector2ImplT_float_t = {"_p_nyra__Vector2ImplT_float_t", "nyra::Vector2F *|nyra::Vector2Impl< float > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_nyra__Vector2ImplT_double_t = {"_p_nyra__Vector2ImplT_double_t", "nyra::Vector2D *|nyra::Vector2Impl< double > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_nyra__Vector2ImplT_float_t = {"_p_nyra__Vector2ImplT_float_t", "nyra::Vector2F *|nyra::Vector2 *|nyra::Vector2Impl< float > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_nyra__Vector2ImplT_int32_t_t = {"_p_nyra__Vector2ImplT_int32_t_t", "nyra::Vector2Impl< int32_t > *|nyra::Vector2I *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_nyra__Vector2ImplT_uint32_t_t = {"_p_nyra__Vector2ImplT_uint32_t_t", "nyra::Vector2U *|nyra::Vector2Impl< uint32_t > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_PyObject = {"_p_p_PyObject", "PyObject **", 0, 0, (void*)0, 0};
@@ -10951,7 +11145,6 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "Keyboard_F14",SWIG_From_int(static_cast< int >(nyra::Keyboard::F14)));
   SWIG_Python_SetConstant(d, "Keyboard_F15",SWIG_From_int(static_cast< int >(nyra::Keyboard::F15)));
   SWIG_Python_SetConstant(d, "Keyboard_PAUSE",SWIG_From_int(static_cast< int >(nyra::Keyboard::PAUSE)));
-  SWIG_Python_SetConstant(d, "Keyboard_MAX_KEY",SWIG_From_int(static_cast< int >(nyra::Keyboard::MAX_KEY)));
 #if PY_VERSION_HEX >= 0x03000000
   return m;
 #else

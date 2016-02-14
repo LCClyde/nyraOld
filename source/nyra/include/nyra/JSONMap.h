@@ -32,19 +32,52 @@
 
 namespace nyra
 {
+/*
+ *  \class JSONMap
+ *  \brief Parses Map values out of a JSON file.
+ */
 struct JSONMap
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Parses Map values out of a JSON file
+     *
+     *  \param pathname The pathname to the json file to parse.
+     */
     JSONMap(const std::string& pathname);
 
-    //=======================================================================//
+    /*
+     *  \class JSONActorInstance
+     *  \brief Parses actor instance information out of a json node.
+     */
     struct JSONActorInstance
     {
     public:
+        /*
+         *  \class JSONActorInstance
+         *  \brief Parses actor instance information out of a json node.
+         *
+         *  \param json The node to parse from.
+         */
         JSONActorInstance(const JSONNode& json);
 
+        /*
+         *  \var filename
+         *  \brief The name of the actor file without an extension.
+         */
         const std::string filename;
+
+        /*
+         *  \var position
+         *  \brief The position of the actor.
+         */
         const Vector2 position;
+
+        /*
+         *  \var rotation
+         *  \brief The rotation of the actor in degrees.
+         */
         const double rotation;
     };
 
@@ -52,6 +85,10 @@ private:
     const JSONReader mReader;
 
 public:
+    /*
+     *  \var actors
+     *  \brief A list of actors associated with this map.
+     */
     const std::vector<JSONActorInstance> actors;
 
 };

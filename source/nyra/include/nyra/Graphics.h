@@ -32,29 +32,86 @@
 
 namespace nyra
 {
+/*
+ *  \class Graphics
+ *  \func Top level class to handle managing graphics objects.
+ */
 class Graphics
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Sets up the internal structure of a Graphics object.
+     *
+     *  \param title The title of the window.
+     *  \param position The position of the window.
+     *  \param size The size of the client area of the window.
+     *  \param fullscreen Should the window be fullscreen?
+     *  \param vsync Should the graphics use vsync?
+     */
     Graphics(const std::string& title,
              const Vector2& position,
              const Vector2& size,
              bool fullscreen,
              bool vsync);
 
+    /*
+     *  \func clear
+     *  \brief Updates the window and clears the buffer to prepare for drawing.
+     *
+     *  \return False if the window was closed. If it was closed then drawing
+     *          should not be done.
+     */
     bool clear();
 
+    /*
+     *  \func render
+     *  \brief Renders all managed sprites to the screen.
+     */
     void render();
 
+    /*
+     *  \func present
+     *  \brief Updates the window with the contents of the back buffer.
+     */
     void present();
 
-    void reset()
+    /*
+     *  \func reset
+     *  \brief Resets the state of the graphics to when it was first created.
+     */
+    inline void reset()
     {
         mSprites.clear();
     }
 
+    /*
+     *  \func getVsyncFlag
+     *  \brief Returns whether the renderer is using vsync.
+     *
+     *  \return True if vsync is enabled
+     */
+    inline bool getVsyncFlag() const
+    {
+        return mVsync;
+    }
+
+    /*
+     *  \func addSprite
+     *  \brief Creates a new sprite object and adds it as a managed object.
+     *
+     *  \param pathname The full pathname to the sprite image.
+     *  \return The sprite object that was created.
+     */
     Sprite& addSprite(const std::string& pathname);
 
-    sf::RenderWindow& getWindow()
+    /*
+     *  \func getWindow
+     *  \brief Gets the underlying native window object.
+     *
+     *  \return The SFML window.
+     */
+    inline sf::RenderWindow& getWindow()
     {
         return mWindow;
     }
@@ -62,6 +119,7 @@ public:
 private:
     sf::Clock mClock;
     size_t mFrames;
+    const bool mVsync;
 
     const std::string mWindowTitle;
     sf::RenderWindow mWindow;

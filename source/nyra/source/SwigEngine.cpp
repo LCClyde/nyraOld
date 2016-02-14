@@ -42,10 +42,10 @@ void _set_data(size_t address)
 }
 
 //===========================================================================//
-void _register_button(const std::string& name,
-                      const std::vector<size_t>& inputs)
+void _register_input(const std::string& name,
+                     const std::vector<size_t>& inputs)
 {
-    engine->getInput().registerButton(name, inputs);
+    engine->getInput().registerInput(name, inputs);
 }
 
 //===========================================================================//
@@ -94,5 +94,13 @@ void log_error(const std::string& message)
 void log(const std::string& message)
 {
     engine->getLogger().logInfo(message);
+}
+
+//===========================================================================//
+void _camera_track(size_t actor,
+                   const Vector2& offset)
+{
+    engine->getCamera().track(
+            *reinterpret_cast<const Actor*>(actor), offset, 0.0);
 }
 }

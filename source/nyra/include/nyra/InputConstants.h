@@ -26,9 +26,19 @@
 
 namespace nyra
 {
+/*
+ *  \class Keyboard
+ *  \brief Used to hold keyboard specific information for interfacing with
+ *         SFML keyboards.
+ */
 class Keyboard
 {
 public:
+    /*
+     *  \enum Key
+     *  \brief Gives a nyra value for each key. These are ordered the same
+     *         as SFML to make it easy to translate between the two.
+     */
     enum Key
     {
         KEYBOARD_OFFSET = 1000,
@@ -133,8 +143,6 @@ public:
         F14,          ///< The F14 key
         F15,          ///< The F15 key
         PAUSE,        ///< The Pause key
-
-        MAX_KEY      ///< Keep last -- the total number of keyboard keys
     };
 };
 }

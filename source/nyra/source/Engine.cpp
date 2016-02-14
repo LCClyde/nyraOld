@@ -30,14 +30,16 @@ namespace nyra
 {
 //===========================================================================//
 Engine::Engine(const std::string& dataDir,
+               double framesPerSecond,
                const std::string& title,
                const Vector2& position,
                const Vector2& size,
                bool fullscreen,
                bool vsync,
-               const Vector2& gravity,
-               double physicsTicksPerSecond) :
+               const Vector2& gravity) :
     mDataDir(dataDir),
+    mTimePerFrame(1.0 / framesPerSecond),
+    mElapsedTime(0.0),
     mGraphics(title,
               position,
               size,
@@ -45,7 +47,6 @@ Engine::Engine(const std::string& dataDir,
               vsync),
     mPhysicsRenderer(mGraphics.getWindow()),
     mPhysics(gravity,
-             physicsTicksPerSecond,
              mPhysicsRenderer),
     mScript(this)
 {
@@ -58,6 +59,37 @@ bool Engine::update()
 {
     const double deltaTime = mTimer.restart().asSeconds();
 
+    if (mGraphics.getVsyncFlag())
+    {
+        return tick(deltaTime);
+    }
+    else
+    {
+        mElapsedTime += deltaTime;
+        if (mElapsedTime >= mTimePerFrame)
+        {
+            if (!tick(mTimePerFrame))
+            {
+                return false;
+            }
+            mElapsedTime -= mTimePerFrame;
+        }
+        if (mElapsedTime >= mTimePerFrame)
+        {
+            const size_t skippedFrames =
+                    static_cast<size_t>(mElapsedTime / mTimePerFrame);
+            Logger::warn("FPS is too high, skipping " +
+                         std::to_string(skippedFrames) + " frames.");
+            mElapsedTime -= mTimePerFrame * skippedFrames;
+        }
+    }
+
+    return true;
+}
+
+//===========================================================================//
+bool Engine::tick(double deltaTime)
+{
     if (!mGraphics.clear())
     {
         return false;
@@ -73,12 +105,14 @@ bool Engine::update()
         actor->updateGraphicsWithPhysics();
     }
 
-    mGraphics.render();
-    mPhysics.render();
+    // Update the camera
+    mCamera.update(mGraphics.getWindow());
 
     // update the input
     mInput.update();
 
+    mGraphics.render();
+    mPhysics.render();
     mGraphics.present();
 
     return true;
@@ -92,6 +126,7 @@ void Engine::reset()
     mGraphics.reset();
     mDynamicActors.clear();
     mActors.clear();
+    mCamera.reset();
 }
 
 //===========================================================================//
@@ -117,10 +152,10 @@ void Engine::addGUI(const std::string& filename)
 }
 
 //===========================================================================//
-sf::Sprite& Engine::addSprite(const std::string& filename)
+Sprite& Engine::addSprite(const std::string& filename)
 {
     const std::string pathname(mDataDir + "/textures/" + filename + ".png");
-    return mGraphics.addSprite(pathname).get();
+    return mGraphics.addSprite(pathname);
 }
 
 //===========================================================================//
@@ -136,18 +171,18 @@ Actor& Engine::addActor(const std::string& filename)
     // Check for a sprite
     if (json.sprite.get())
     {
-        sf::Sprite& sprite = addSprite(json.sprite->filename);
+        Sprite& sprite = addSprite(json.sprite->filename);
 
         if (json.sprite->origin.get())
         {
-            sprite.setOrigin(
+            sprite.get().setOrigin(
                     json.sprite->origin->toThirdParty<sf::Vector2f>());
         }
         else
         {
-            sprite.setOrigin(sf::Vector2f(
-                    (sprite.getTexture()->getSize().x / 2.0f),
-                    (sprite.getTexture()->getSize().y / 2.0f)));
+            sprite.get().setOrigin(sf::Vector2f(
+                    (sprite.get().getTexture()->getSize().x / 2.0f),
+                    (sprite.get().getTexture()->getSize().y / 2.0f)));
         }
         actor.setSprite(sprite);
     }
@@ -170,14 +205,14 @@ Actor& Engine::addActor(const std::string& filename)
     // Check for phyics
     if (json.physics.get())
     {
-        Body::Type type;
+        PhysicsBody::Type type;
         if (json.physics->type == "dynamic")
         {
-            type = Body::DYNAMIC;
+            type = PhysicsBody::DYNAMIC;
         }
         else if (json.physics->type == "static")
         {
-            type = Body::STATIC;
+            type = PhysicsBody::STATIC;
         }
         else
         {
@@ -185,7 +220,7 @@ Actor& Engine::addActor(const std::string& filename)
                     "Invalid physics type: " + json.physics->type);
         }
 
-        Body& body = mPhysics.addBody(type);
+        PhysicsBody& body = mPhysics.addBody(type);
 
         for (const auto& shape : json.physics->shapes)
         {

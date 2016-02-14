@@ -57,8 +57,8 @@ Script::Script(const std::string& moduleName,
         mInstance.reset(PyObject_CallObject(mClass.get(), argList.get()));
         if (!mInstance.get())
         {
-            throw std::runtime_error("Unable to open instace of: " +
-                    moduleName + " " + className);
+            throw std::runtime_error("Unable to create instace of: " +
+                    moduleName + "::" + className);
         }
     }
 

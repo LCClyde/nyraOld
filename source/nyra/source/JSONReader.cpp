@@ -29,7 +29,7 @@ namespace nyra
 {
 //===========================================================================//
 JSONReader::JSONReader(const std::string& pathname) :
-    mNode(&mDocument)
+    JSONNode(&mDocument)
 {
     if (mDocument.Parse(readFile(pathname).c_str()).HasParseError())
     {

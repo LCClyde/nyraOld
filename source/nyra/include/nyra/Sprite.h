@@ -29,17 +29,40 @@
 
 namespace nyra
 {
+/*
+ *  \class Sprite
+ *  \brief A lite wrapper around SFML sprites. This also keeps the texture
+ *         in scope.
+ */
 class Sprite
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Creates an SFML sprite under the hood.
+     *
+     *  \param pathname The location of the texture on disk.
+     */
     Sprite(const std::string& pathname);
 
-    const sf::Sprite& get() const
+    /*
+     *  \func get
+     *  \brief Get the underlying SFML sprite.
+     *
+     *  \return The SFML sprite.
+     */
+    inline const sf::Sprite& get() const
     {
         return mSprite;
     }
 
-    sf::Sprite& get()
+    /*
+     *  \func get
+     *  \brief Get the underlying SFML sprite.
+     *
+     *  \return The SFML sprite.
+     */
+    inline sf::Sprite& get()
     {
         return mSprite;
     }

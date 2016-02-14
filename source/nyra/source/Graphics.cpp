@@ -34,6 +34,7 @@ Graphics::Graphics(const std::string& title,
                    bool fullscreen,
                    bool vsync) :
     mFrames(0),
+    mVsync(vsync),
     mWindowTitle(title),
     mWindow(sf::VideoMode(size.x, size.y), mWindowTitle + " 0 FPS",
             fullscreen ? (sf::Style::Fullscreen) :

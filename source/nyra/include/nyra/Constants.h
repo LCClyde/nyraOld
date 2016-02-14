@@ -28,12 +28,41 @@
 
 namespace nyra
 {
+/*
+ *  \class Constants
+ *  \brief A class to hold commonly used constants.
+ */
 class Constants
 {
 public:
+    /*
+     *  \const APP_PATH
+     *  \brief The absolute path to where the application is located.
+     */
     static const std::string APP_PATH;
+
+    /*
+     *  \const DEGREES_TO_RADIANS
+     *  \brief Value used to convert degreees to radains.
+     */
     static const double DEGREES_TO_RADIANS;
+
+    /*
+     *  \const RADIANS_TO_DEGREES
+     *  \brief Value used to convert radians to degrees.
+     */
+    static const double RADIANS_TO_DEGREES;
+
+    /*
+     *  \const PIXELS_PER_METER
+     *  \brief The number of pixels per physics meter.
+     */
     static const double PIXELS_PER_METER;
+
+    /*
+     *  \const METERS_PER_PIXEL
+     *  \brief The number of physics meters per pixel.
+     */
     static const double METERS_PER_PIXEL;
 };
 }

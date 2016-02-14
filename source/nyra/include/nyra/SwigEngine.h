@@ -26,28 +26,104 @@
 
 #include <string>
 #include <vector>
+#include <nyra/Vector2.h>
 
 namespace nyra
 {
-void _register_button(const std::string& name,
-                      const std::vector<size_t>& inputs);
+/*
+ *  \func _register_input
+ *  \brief Allows input to be registered from Python.
+ *
+ *  \param name The name of the input
+ *  \param inputs The keys associated with the input.
+ */
+void _register_input(const std::string& name,
+                     const std::vector<size_t>& inputs);
 
+/*
+ *  \func button_pressed
+ *  \brief Check if a button is pressed from Python
+ *
+ *  \param name The name of the input
+ *  \return True if the button is pressed
+ */
 bool button_pressed(const std::string& name);
 
+/*
+ *  \func button_released
+ *  \brief Check if a button was release from Python
+ *
+ *  \param name The name of the input
+ *  \return True if the button was released
+ */
 bool button_released(const std::string& name);
 
+/*
+ *  \func button_down
+ *  \brief Checks if a button is down from Python
+ *
+ *  \param name The name of the input
+ *  \return True if the button is down
+ */
 bool button_down(const std::string& name);
 
+/*
+ *  \func log_debug
+ *  \brief Prints a debug message from Python
+ *
+ *  \param message The message to print
+ */
 void log_debug(const std::string& message);
 
+/*
+ *  \func log_info
+ *  \brief Prints an info message from Python
+ *
+ *  \param message The message to print
+ */
 void log_info(const std::string& message);
 
+/*
+ *  \func log_warning
+ *  \brief Prints a warning message from Python
+ *
+ *  \param message The message to print
+ */
 void log_warning(const std::string& message);
 
+/*
+ *  \func log_error
+ *  \brief Prints an error message from Python
+ *
+ *  \param message The message to print
+ */
 void log_error(const std::string& message);
 
+/*
+ *  \func log
+ *  \brief Convience function for log_info
+ *
+ *  \param message The message to print
+ */
 void log(const std::string& message);
 
+/*
+ *  \func _camera_track
+ *  \brief Sets the camera to track an actor.
+ *
+ *  \param actor The memory address of the actor to track.
+ *  \param offset The tracking offset in pixels.
+ */
+void _camera_track(size_t actor,
+                   const Vector2& offset);
+
+/*
+ *  \func _set_data
+ *  \brief Sets the engine instance to allow Python to use the same
+ *         memory space as the game. This should only be called internally.
+ *
+ *  \param address The pointer address of the engine.
+ */
 void _set_data(size_t address);
 }
 

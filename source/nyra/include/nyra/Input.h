@@ -30,20 +30,71 @@
 
 namespace nyra
 {
+/*
+ *  \class Input
+ *  \brief Provides a single interface for managing input. Input is registered
+ *         with a string and then queried using that string. This seperates
+ *         the keys from actions and makes it easier to allow user defined
+ *         input.
+ */
 class Input
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Initializes an Input object.
+     */
     Input();
 
-    void registerButton(const std::string& name,
-                        const std::vector<size_t>& inputs);
+    /*
+     *  \func registerInput
+     *  \brief Registers a string to a list of input. This string can then
+     *         be used to queury the various states of input.
+     *
+     *  \param name The name of the input. This is used for later querying
+     *         state.
+     *  \param inputs The list of inputs. Use the InputConstants to handle
+     *         the values.
+     */
+    void registerInput(const std::string& name,
+                       const std::vector<size_t>& inputs);
 
+    /*
+     *  \func buttonPressed
+     *  \brief Used to determine if a button was pressed. Pressed is defined as
+     *         being held down on this frame but not on the previous frame.
+     *
+     *  \param name The name of the input used during registration.
+     *  \return True if the button was pressed this frame.
+     */
     bool buttonPressed(const std::string& name) const;
 
+    /*
+     *  \func buttonDown
+     *  \brief Used to determine if a button is being held down. Held down is
+     *         defined as currently being pressed. It can be down for
+     *         consecutive frames.
+     *
+     *  \param name The name of the input used during registration.
+     *  \return True if the button is down this frame.
+     */
     bool buttonDown(const std::string& name) const;
 
+    /*
+     *  \func buttonReleased
+     *  \brief Used to determine if a button was released. Released is defined
+     *         as being down the previous frame but not down this frame.
+     *
+     *  \param name The name of the input used during registration.
+     *  \return True if the button was released this frame.
+     */
     bool buttonReleased(const std::string& name) const;
 
+    /*
+     *  \func update
+     *  \brief Updates the state of all the input devices. This should only
+     *         be called internally.
+     */
     void update();
 
 private:

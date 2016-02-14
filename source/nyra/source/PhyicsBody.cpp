@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Clyde Stanfield
+ * Copyright (c) 2016 Clyde Stanfield
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,38 +21,34 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include <nyra/Constants.h>
-#include <cstring>
-
-#ifdef __linux__
-#include <limits.h>
-#include <unistd.h>
-#endif
-
-#define _USE_MATH_DEFINES
-#include <math.h>
-
-namespace
-{
-//! TODO: Implement this for other platforms
-#ifdef __linux__
-std::string getApplicationPath()
-{
-    char buff[PATH_MAX];
-    memset(buff, 0, PATH_MAX);
-    ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
-    const std::string ret(buff);
-    const size_t find = ret.find_last_of("/\\");
-    return find != std::string::npos ? ret.substr(0, find + 1) : ret;
-}
-#endif
-}
+#include <nyra/PhysicsBody.h>
 
 namespace nyra
 {
-const std::string Constants::APP_PATH(getApplicationPath());
-const double Constants::DEGREES_TO_RADIANS = M_PI / 180.0;
-const double Constants::RADIANS_TO_DEGREES = 180.0 / M_PI;
-const double Constants::PIXELS_PER_METER = 16.0;
-const double Constants::METERS_PER_PIXEL = 1.0 / Constants::PIXELS_PER_METER;
+//===========================================================================//
+PhysicsBody::PhysicsBody(Type type,
+           b2World& world)
+{
+    b2BodyDef bodyDef;
+    if (type == DYNAMIC)
+    {
+        bodyDef.type = b2_dynamicBody;
+    }
+    mBody = world.CreateBody(&bodyDef);
+}
+
+//===========================================================================//
+void PhysicsBody::addBox(const Vector2& size,
+                  float density,
+                  float friction)
+{
+    b2PolygonShape shape;
+    b2FixtureDef fixture;
+    shape.SetAsBox((size.x * Constants::METERS_PER_PIXEL) / 2.0,
+                   (size.y * Constants::METERS_PER_PIXEL) / 2.0);
+    fixture.density = density;
+    fixture.friction = friction;
+    fixture.shape = &shape;
+    mBody->CreateFixture(&fixture);
+}
 }
