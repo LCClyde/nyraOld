@@ -40,6 +40,7 @@
 #include <nyra/Logger.h>
 #include <nyra/PhysicsRenderer.h>
 #include <nyra/Camera.h>
+#include <nyra/Config.h>
 
 namespace nyra
 {
@@ -56,28 +57,9 @@ public:
      *  \func Constructor
      *  \brief Creates an Engine object.
      *
-     *  \param dataDir The path to the data directory. This is where
-     *         the engine expects all of its game level files.
-     *  \param framesPerSecond The number of that are applied each second.
-     *         If vsync is on this is ignored.
-     *  \param title The title of the window that is created. This can
-     *         usually be your game title.
-     *  \param position The starting position of the window.
-     *  \param size The size of the window.
-     *  \param fullscreen Should the game start in fullscreen?
-     *  \param vsync Should the graphics be run with vsync on?
-     *  \param gravity The force of gravity in meters / second squared. Note
-     *         that 0, 0 is the top left of the window meaning positive Y is
-     *         a downward force.
+     *  \param config A filled out config struct.
      */
-    Engine(const std::string& dataDir = Constants::APP_PATH + "../data/",
-           double framesPerSecond = 60.0,
-           const std::string& title = "Nyra Engine",
-           const Vector2& position = Vector2(0, 0),
-           const Vector2& size = Vector2(1920, 1080),
-           bool fullscreen = false,
-           bool vsync = false,
-           const Vector2& gravity = Vector2(0, 200.0));
+    Engine(const Config& config);
 
     /*
      *  \func update
@@ -169,11 +151,12 @@ private:
 
     Sprite& addSprite(const std::string& filename);
 
-    const std::string mDataDir;
+    Config mConfig;
+    bool mRenderPhysics;
 
     sf::Clock mTimer;
-    const double mTimePerFrame;
     double mElapsedTime;
+    const double mTimePerFrame;
     Input mInput;
 
     // Graphics

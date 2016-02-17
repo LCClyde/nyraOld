@@ -25,13 +25,36 @@
 #define NYRA_JSON_CONFIG_H_
 
 #include <string>
+#include <nyra/JSONReader.h>
+#include <nyra/Config.h>
 
 namespace nyra
 {
 class JSONConfig
 {
 public:
+    /*
+     *  \func Constructor
+     *  \brief Reads and stores a config file.
+     *
+     *  \param pathname The pathname to the config.json file.
+     */
     JSONConfig(const std::string& pathname);
+
+    /*
+     *  \func get
+     *  \brief Gets the underlying config object.
+     *
+     *  \return The filled out config object
+     */
+    const Config& get() const
+    {
+        return mConfig;
+    }
+
+private:
+    const JSONReader mReader;
+    Config mConfig;
 };
 }
 

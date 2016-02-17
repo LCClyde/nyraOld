@@ -54,11 +54,20 @@ ScriptEngine::~ScriptEngine()
 }
 
 //===========================================================================//
-void ScriptEngine::callAll(const std::string& method)
+void ScriptEngine::update(double deltaTime)
 {
     for (auto& script : mScripts)
     {
-        script->call(method);
+        script->call<double>("update", deltaTime);
+    }
+}
+
+//===========================================================================//
+void ScriptEngine::init()
+{
+    for (auto& script : mScripts)
+    {
+        script->call("init");
     }
 }
 

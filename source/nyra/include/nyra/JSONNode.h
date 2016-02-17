@@ -59,6 +59,16 @@ public:
     ~JSONNode();
 
     /*
+     *  \func getBool
+     *  \brief Extract a bool from a node
+     *
+     *  \param name The name of the bool.
+     *  \return The value of the bool.
+     *  \throw If the bool does not exist.
+     */
+    bool getBool(const std::string& name) const;
+
+    /*
      *  \func getString
      *  \brief Extract a string from a node
      *

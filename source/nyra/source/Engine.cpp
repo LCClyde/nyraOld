@@ -25,33 +25,36 @@
 #include <nyra/JSONActor.h>
 #include <nyra/Logger.h>
 #include <nyra/JSONMap.h>
+#include <nyra/InputConstants.h>
 
 namespace nyra
 {
 //===========================================================================//
-Engine::Engine(const std::string& dataDir,
-               double framesPerSecond,
-               const std::string& title,
-               const Vector2& position,
-               const Vector2& size,
-               bool fullscreen,
-               bool vsync,
-               const Vector2& gravity) :
-    mDataDir(dataDir),
-    mTimePerFrame(1.0 / framesPerSecond),
+Engine::Engine(const Config& config) :
+    mConfig(config),
+    mRenderPhysics(false),
     mElapsedTime(0.0),
-    mGraphics(title,
-              position,
-              size,
-              fullscreen,
-              vsync),
+    mTimePerFrame(1.0 / mConfig.framesPerSecond),
+    mGraphics(mConfig.title,
+              mConfig.windowPosition,
+              mConfig.windowSize,
+              mConfig.fullscreen,
+              mConfig.vsync),
     mPhysicsRenderer(mGraphics.getWindow()),
-    mPhysics(gravity,
+    mPhysics(mConfig.gravity,
              mPhysicsRenderer),
     mScript(this)
 {
     Logger::info("Engine initialized");
     mPhysicsRenderer.setRender(true);
+    mInput.registerInput("render physics",
+                         std::vector<size_t>(1, Keyboard::NUM_1));
+
+    // Check for a default map
+    if (!mConfig.defaultMap.empty())
+    {
+        loadMap(mConfig.defaultMap);
+    }
 }
 
 //===========================================================================//
@@ -95,7 +98,7 @@ bool Engine::tick(double deltaTime)
         return false;
     }
 
-    mScript.update();
+    mScript.update(deltaTime);
 
     mPhysics.update(deltaTime);
 
@@ -108,11 +111,25 @@ bool Engine::tick(double deltaTime)
     // Update the camera
     mCamera.update(mGraphics.getWindow());
 
+    // Check for physics rendering
+    if (mConfig.debug && mInput.buttonPressed("render physics"))
+    {
+        mRenderPhysics = !mRenderPhysics;
+        Logger::debug("Physics rendering now set to: " +
+                ((mRenderPhysics) ? std::string("true") :
+                                    std::string("false")));
+    }
+
     // update the input
     mInput.update();
 
     mGraphics.render();
-    mPhysics.render();
+
+    // Check for physics rendering
+    if (mConfig.debug && mRenderPhysics)
+    {
+        mPhysics.render();
+    }
     mGraphics.present();
 
     return true;
@@ -133,7 +150,7 @@ void Engine::reset()
 void Engine::loadMap(const std::string& filename)
 {
     reset();
-    const std::string pathname(mDataDir + "/maps/" + filename + ".json");
+    const std::string pathname(mConfig.dataDir + "/maps/" + filename + ".json");
     Logger::info("Loading map: " + pathname);
     const JSONMap map(pathname);
     for (const auto& actor : map.actors)
@@ -142,19 +159,22 @@ void Engine::loadMap(const std::string& filename)
         created.setPosition(actor.position);
         //created.setRotation(actor.rotation);
     }
+
+    // Tell all the actors everything is loaded
+    mScript.init();
 }
 
 //===========================================================================//
 void Engine::addGUI(const std::string& filename)
 {
-    const std::string pathname(mDataDir + "/gui/" + filename + ".json");
+    const std::string pathname(mConfig.dataDir + "/gui/" + filename + ".json");
     GUI gui();
 }
 
 //===========================================================================//
 Sprite& Engine::addSprite(const std::string& filename)
 {
-    const std::string pathname(mDataDir + "/textures/" + filename + ".png");
+    const std::string pathname(mConfig.dataDir + "/textures/" + filename + ".png");
     return mGraphics.addSprite(pathname);
 }
 
@@ -162,7 +182,7 @@ Sprite& Engine::addSprite(const std::string& filename)
 Actor& Engine::addActor(const std::string& filename)
 {
     // Parse JSON
-    const std::string pathname(mDataDir + "/actors/" + filename + ".json");
+    const std::string pathname(mConfig.dataDir + "/actors/" + filename + ".json");
     JSONActor json(pathname);
 
     mActors.push_back(std::unique_ptr<Actor>(new Actor()));
@@ -198,6 +218,10 @@ Actor& Engine::addActor(const std::string& filename)
         if (json.script->update.get())
         {
             script->addMethod("update", (*json.script->update));
+        }
+        if (json.script->init.get())
+        {
+            script->addMethod("init", (*json.script->init));
         }
         actor.setScript(*script);
     }

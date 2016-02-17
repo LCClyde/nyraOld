@@ -51,7 +51,9 @@ JSONActor::JSONScript::JSONScript(const JSONNode& json) :
     module(json.getString("module")),
     className(json.getString("class")),
     update(json.hasValue("update") ?
-            new std::string(json.getString("update")) : nullptr)
+            new std::string(json.getString("update")) : nullptr),
+    init(json.hasValue("init") ?
+            new std::string(json.getString("init")) : nullptr)
 {
 }
 
@@ -66,11 +68,15 @@ JSONActor::JSONPhysics::JSONPhysics(const JSONNode& json) :
 JSONActor::JSONPhysics::JSONPhysicsShape::JSONPhysicsShape(
         const JSONNode& json) :
     type(json.getString("type")),
-    size(json.getVector2("size", "width", "height")),
+    size(json.hasValue("size") ?
+            json.getVector2("size", "width", "height") :
+            Vector2(0.0, 0.0)),
     friction(json.hasValue("friction") ?
             json.getDouble("friction") : 0.8),
     density(json.hasValue("density") ?
-            json.getDouble("density") : 1.0)
+            json.getDouble("density") : 1.0),
+    radius(json.hasValue("radius") ?
+            json.getDouble("radius") : 0.0)
 {
 }
 }

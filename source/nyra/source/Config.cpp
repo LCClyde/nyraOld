@@ -21,48 +21,37 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include <nyra/PhysicsBody.h>
+#include <nyra/Config.h>
+#include <nyra/Constants.h>
+
+namespace
+{
+static const bool DEBUG = false;
+static const std::string DATA_DIR(nyra::Constants::APP_PATH + "../data/");
+static const double FRAMES_PER_SECOND = 60.0;
+static const std::string TITLE = "Nyra Engine";
+static const nyra::Vector2 WINDOW_POSITION(0.0, 0.0);
+static const nyra::Vector2 WINDOW_SIZE(1920, 1080);
+static const bool FULLSCREEN = false;
+static const bool VSYNC = false;
+static const nyra::Vector2 GRAVITY(0.0, 200.0);
+static const std::string DEFAULT_MAP("");
+}
 
 namespace nyra
 {
 //===========================================================================//
-PhysicsBody::PhysicsBody(Type type,
-           b2World& world)
+Config::Config() :
+    debug(DEBUG),
+    dataDir(DATA_DIR),
+    framesPerSecond(FRAMES_PER_SECOND),
+    title(TITLE),
+    windowPosition(WINDOW_POSITION),
+    windowSize(WINDOW_SIZE),
+    fullscreen(FULLSCREEN),
+    vsync(VSYNC),
+    gravity(GRAVITY),
+    defaultMap(DEFAULT_MAP)
 {
-    b2BodyDef bodyDef;
-    if (type == DYNAMIC)
-    {
-        bodyDef.type = b2_dynamicBody;
-    }
-    mBody = world.CreateBody(&bodyDef);
-}
-
-//===========================================================================//
-void PhysicsBody::addBox(const Vector2& size,
-                         float density,
-                         float friction)
-{
-    b2PolygonShape shape;
-    b2FixtureDef fixture;
-    shape.SetAsBox((size.x * Constants::METERS_PER_PIXEL) / 2.0,
-                   (size.y * Constants::METERS_PER_PIXEL) / 2.0);
-    fixture.density = density;
-    fixture.friction = friction;
-    fixture.shape = &shape;
-    mBody->CreateFixture(&fixture);
-}
-
-//===========================================================================//
-void PhysicsBody::addCircle(float radius,
-                            float density,
-                            float friction)
-{
-    b2FixtureDef fixture;
-    b2CircleShape circle;
-    circle.m_radius = radius * Constants::METERS_PER_PIXEL;
-    fixture.density = density;
-    fixture.friction = friction;
-    fixture.shape = &circle;
-    mBody->CreateFixture(&fixture);
 }
 }

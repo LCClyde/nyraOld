@@ -76,6 +76,18 @@ public:
                 float friction);
 
     /*
+     *  \func addCircle
+     *  \brief Adds a circle collision to the physics body.
+     *
+     *  \param radisu The radius of the circle in pixels.
+     *  \param density The density of the object.
+     *  \param friction The friction of the object.
+     */
+    void addCircle(float radius,
+                   float density,
+                   float friction);
+
+    /*
      *  \func getPosition
      *  \brief Obtains the position of the physics body.
      *
@@ -84,6 +96,17 @@ public:
     inline Vector2 getPosition() const
     {
         return Vector2(mBody->GetPosition()) * Constants::PIXELS_PER_METER;
+    }
+
+    /*
+     *  \func getRotation
+     *  \brief Gets the rotation of the physics body.
+     *
+     *  \return The current rotation in degrees.
+     */
+    inline float getRotation() const
+    {
+        return mBody->GetAngle() * Constants::RADIANS_TO_DEGREES;
     }
 
     /*

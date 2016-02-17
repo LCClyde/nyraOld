@@ -26,14 +26,18 @@
 #include <memory>
 #include <nyra/Logger.h>
 #include <nyra/Engine.h>
+#include <nyra/Constants.h>
+#include <nyra/JSONConfig.h>
 
 int main(int argc, char** argv)
 {
     try
     {
         nyra::Logger::registerLogger(nyra::Logger::DEBUG, "./log.txt");
-        nyra::Engine engine;
-        engine.loadMap("test");
+        const nyra::JSONConfig config(argc > 1 ?
+                argv[1] :
+                nyra::Constants::APP_PATH + "../data/config/config.json");
+        nyra::Engine engine(config.get());
 
         while (engine.update())
         {

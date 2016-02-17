@@ -64,20 +64,15 @@ public:
     /*
      *  \func update
      *  \brief Calls update on all the scripts.
+     *
+     *  \param deltaTime The time since the last call to update.
      */
-    inline void update()
-    {
-        callAll("update");
-    }
-
+    void update(double deltaTime);
     /*
      *  \func init
      *  \brief Calls the init method on all scripts
      */
-    void init()
-    {
-        callAll("init");
-    }
+    void init();
 
     /*
      *  \func addScript
@@ -94,8 +89,6 @@ public:
                       void* data);
 
 private:
-    void callAll(const std::string& methodName);
-
     std::unique_ptr<Script> mEngineScript;
     std::vector<std::unique_ptr<Script> > mScripts;
 };

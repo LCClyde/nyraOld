@@ -78,10 +78,10 @@ foreach(dir ${projects})
     endif()
 endforeach()
 
-add_custom_command(OUTPUT copyPython
-                   PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${SOURCE_DIRECTORY}/nyra/python ${PYTHON_DIRECTORY})
+#add_custom_command(OUTPUT copyPython
+#                   PRE_BUILD
+#                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+#                       ${SOURCE_DIRECTORY}/nyra/python ${PYTHON_DIRECTORY})
 
 # Create swig files
 file(MAKE_DIRECTORY ${PYTHON_DIRECTORY})
@@ -94,9 +94,9 @@ add_custom_target(
   BuildSwig ALL
   DEPENDS swig)
 
-add_custom_target(
-  CopyPython ALL
-  DEPENDS copyPython BuildSwig)
+#add_custom_target(
+#  CopyPython ALL
+#  DEPENDS copyPython BuildSwig)
 
 # Build the swig lib
 add_library(_nyra SHARED ${SOURCE_DIRECTORY}/nyra/nyra_wrap.cpp)

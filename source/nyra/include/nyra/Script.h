@@ -72,9 +72,66 @@ public:
      *
      *  \param methodKey The name of the method to call.
      */
-    void call(const std::string& methodKey);
+    inline void call(const std::string& methodKey)
+    {
+        if (!hasMethod(methodKey))
+        {
+            return;
+        }
+
+        callMethod(methodKey, getArgList());
+    }
+
+    /*
+     *  \func call
+     *  \brief Calls a registered method
+     *
+     *  \tparam T The type of the parameter.
+     *  \param methodKey The name of the method to call.
+     *  \param param A param to pass to python.
+     */
+    template <typename T>
+    void call(const std::string& methodKey,
+              T param)
+    {
+        if (!hasMethod(methodKey))
+        {
+            return;
+        }
+
+        callMethod(methodKey, getArgList<T>(param));
+    }
 
 private:
+    inline bool hasMethod(const std::string& methodKey) const
+    {
+        return mMethods.find(methodKey) != mMethods.end();
+    }
+
+    void callMethod(const std::string& method,
+                    const AutoPy& argList);
+
+    AutoPy getArgList()
+    {
+        return AutoPy(PyTuple_New(0));
+    }
+
+    template <typename T>
+    AutoPy getArgList(T param)
+    {
+        const AutoPy argList(PyTuple_New(1));
+        addParam<T>(argList, 0, param);
+        return argList;
+    }
+
+    template <typename T>
+    void addParam(const AutoPy& argList,
+                  size_t pos,
+                  T value)
+    {
+        throw std::runtime_error("No specialziation available for param.");
+    }
+
     AutoPy mModule;
     AutoPy mClass;
     AutoPy mInstance;

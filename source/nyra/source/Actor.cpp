@@ -123,5 +123,6 @@ void Actor::updateGraphicsWithPhysics() const
     }
     mSprite->get().setPosition(
             mPhysics->getPosition().toThirdParty<sf::Vector2f>());
+    mSprite->get().setRotation(mPhysics->getRotation());
 }
 }

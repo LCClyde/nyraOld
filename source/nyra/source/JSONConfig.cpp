@@ -26,8 +26,45 @@
 namespace nyra
 {
 //===========================================================================//
-JSONConfig::JSONConfig(const std::string& pathname)
+JSONConfig::JSONConfig(const std::string& pathname) :
+    mReader(pathname)
 {
-
+    if (mReader.hasValue("debug"))
+    {
+        mConfig.debug = mReader.getBool("debug");
+    }
+    if (mReader.hasValue("fps"))
+    {
+        mConfig.framesPerSecond = mReader.getDouble("fps");
+    }
+    if (mReader.hasValue("title"))
+    {
+        mConfig.title = mReader.getString("title");
+    }
+    if (mReader.hasValue("window position"))
+    {
+        mConfig.windowPosition = mReader.getVector2("window position");
+    }
+    if (mReader.hasValue("window size"))
+    {
+        mConfig.windowSize =
+                mReader.getVector2("window size", "width", "height");
+    }
+    if (mReader.hasValue("fullscreen"))
+    {
+        mConfig.fullscreen = mReader.getBool("fullscreen");
+    }
+    if (mReader.hasValue("vsync"))
+    {
+        mConfig.vsync = mReader.getBool("vsync");
+    }
+    if (mReader.hasValue("gravity"))
+    {
+        mConfig.gravity = mReader.getVector2("gravity");
+    }
+    if (mReader.hasValue("default map"))
+    {
+        mConfig.defaultMap = mReader.getString("default map");
+    }
 }
 }

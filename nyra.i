@@ -43,6 +43,10 @@ def get_position(self):
     vec = self._get_position()
     return (vec.x, vec.y)
 
+def get_velocity(self):
+    vec = self._get_velocity()
+    return (vec.x, vec.y)
+
 def set_position(self, values):
     self._set_position(nyra.Vector2(values[0], values[1]))
 
@@ -66,6 +70,7 @@ class Camera:
 
 Actor.position = property(get_position)
 Actor.position = Actor.position.setter(set_position)
+Actor.velocity = property(get_velocity)
 Actor.apply_force = apply_force
 %}
 

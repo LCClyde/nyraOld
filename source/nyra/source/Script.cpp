@@ -24,6 +24,7 @@
 #include <nyra/Script.h>
 #include <nyra/Logger.h>
 #include <iostream>
+#include <frameobject.h>
 
 namespace nyra
 {
@@ -64,11 +65,7 @@ Script::Script(const std::string& moduleName,
 
     // Call the set_data method by default to initialize the instance.
     addMethod("set_data", "_set_data");
-
-    const AutoPy setDataList(PyTuple_New(1));
-    PyTuple_SetItem(setDataList.get(), 0,
-                    PyInt_FromSize_t(reinterpret_cast<size_t>(data)));
-    PyObject_CallObject(mMethods["set_data"].get(), setDataList.get());
+    call<size_t>("set_data", reinterpret_cast<size_t>(data));
 }
 
 //===========================================================================//
@@ -93,17 +90,62 @@ void Script::addMethod(const std::string& methodKey,
 }
 
 //===========================================================================//
-void Script::call(const std::string& methodKey)
+void Script::callMethod(const std::string& method,
+                        const AutoPy& argList)
 {
-    // Make sure this is not already assigned
-    const auto& iter = mMethods.find(methodKey);
-    if (iter == mMethods.end())
-    {
-        return;
-    }
+    PyObject_CallObject(mMethods[method].get(), argList.get());
 
-    const AutoPy argList(PyTuple_New(0));
-    PyObject_CallObject(mMethods[methodKey].get(), argList.get());
+    // Check for error
+    PyObject* error = PyErr_Occurred();
+    if (error)
+    {
+        // Fetch the error
+        PyObject* type;
+        PyObject* value;
+        PyObject* traceback;
+        PyErr_Fetch(&type, &value, &traceback);
+
+        // Get the error message
+        const std::string errorString  = PyString_AsString(value);
+
+        // Try to get the full traceback
+        PyThreadState* state = PyThreadState_GET();
+        if (state && state->frame)
+        {
+            PyFrameObject* frame = state->frame;
+            while (frame)
+            {
+                const std::string frameString =
+                        std::string(PyString_AsString(
+                                frame->f_code->co_filename)) +
+                        "(" + std::to_string(frame->f_lineno) + "): " +
+                        PyString_AsString(frame->f_code->co_name);
+                Logger::error(frameString);
+                frame = frame->f_back;
+            }
+        }
+        throw std::runtime_error(errorString);
+    }
+}
+
+//===========================================================================//
+template <>
+void Script::addParam(const AutoPy& argList,
+                      size_t pos,
+                      double value)
+{
+    PyTuple_SetItem(argList.get(), pos,
+                    PyFloat_FromDouble(value));
+}
+
+//===========================================================================//
+template <>
+void Script::addParam(const AutoPy& argList,
+                      size_t pos,
+                      size_t value)
+{
+    PyTuple_SetItem(argList.get(), pos,
+                    PyInt_FromSize_t(value));
 }
 
 }

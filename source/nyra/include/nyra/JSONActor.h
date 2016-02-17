@@ -106,6 +106,12 @@ public:
          *  \brief An optional update function name.
          */
         const std::unique_ptr<const std::string> update;
+
+        /*
+         *  \var init
+         *  \brief An optional init funciton name.
+         */
+        const std::unique_ptr<const std::string> init;
     };
 
     /*
@@ -165,6 +171,12 @@ public:
              *  \brief The density for this shape.
              */
             const double density;
+
+            /*
+             *  \var radius
+             *  \brief The radius of a circle collision
+             */
+            const double radius;
         };
 
         /*

@@ -51,6 +51,18 @@ JSONNode JSONNode::getNode(const std::string& name) const
 }
 
 //===========================================================================//
+bool JSONNode::getBool(const std::string& name) const
+{
+    hasValue(name, true);
+    if (!(*mValue)[name.c_str()].IsBool())
+    {
+        throw std::runtime_error(
+            "Node: " + name + " does not contain a bool.");
+    }
+    return (*mValue)[name.c_str()].GetBool();
+}
+
+//===========================================================================//
 std::string JSONNode::getString(const std::string& name) const
 {
     hasValue(name, true);
